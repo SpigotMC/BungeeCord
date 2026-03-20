@@ -1,12 +1,12 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import java.util.ArrayList;
-import java.util.List;
 import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
@@ -28,7 +28,7 @@ public class RegistryData extends DefinedPacket
         registryId = readString( buf );
         int amount = readVarInt( buf );
         List<RegistryEntry> entries = new ArrayList<>();
-        for( int i = 0; i < amount; i++ )
+        for ( int i = 0; i < amount; i++ )
         {
             entries.add( new RegistryEntry( readString( buf ), readNullable( input -> readTag( input, protocolVersion ), buf ) ) );
         }

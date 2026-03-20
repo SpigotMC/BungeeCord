@@ -1,12 +1,12 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import java.util.HashMap;
-import java.util.Map;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -26,12 +26,12 @@ public class UpdateTags extends DefinedPacket
         int amount = readVarInt( buf );
         Map<String, Map<String, int[]>> tags = new HashMap<>( amount );
 
-        for (int i = 0; i < amount; i++ )
+        for ( int i = 0; i < amount; i++ )
         {
             String key = readString( buf );
             int innerAmount = readVarInt( buf );
             Map<String, int[]> innerTags = new HashMap<>( innerAmount );
-            for (int j = 0; j < innerAmount; j++ )
+            for ( int j = 0; j < innerAmount; j++ )
             {
                 innerTags.put( readString( buf ), readVarIntArray( buf ) );
             }

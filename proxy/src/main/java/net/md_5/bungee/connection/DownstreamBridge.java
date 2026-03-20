@@ -852,7 +852,8 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
-    public void handle(UpdateTags updateTags) throws Exception {
+    public void handle(UpdateTags updateTags) throws Exception
+    {
         registryAccumulationQueue.add( updateTags );
         throw CancelSendSignal.INSTANCE;
     }
