@@ -19,9 +19,11 @@ import io.netty.channel.unix.DomainSocketAddress;
 import java.io.DataInput;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
@@ -68,6 +70,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.RegistryData;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -76,6 +79,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
+import net.md_5.bungee.protocol.packet.UpdateTags;
 import net.md_5.bungee.tab.TabList;
 
 @RequiredArgsConstructor
@@ -93,6 +97,14 @@ public class DownstreamBridge extends PacketHandler
     private final UserConnection con;
     private final ServerConnection server;
     private boolean receivedLogin;
+
+    /*
+     * This queue is used to accumulate all registry data and update tag packets.
+     * We send them all at once just before the FinishConfiguration.
+     * As otherwise during sever switches, when the player already was in config state,
+     * the client can be in an irrecoverable state.
+     */
+    private final Queue<DefinedPacket> registryAccumulationQueue = new LinkedList<>();
 
     @Override
     public void exception(Throwable t) throws Exception
@@ -833,10 +845,29 @@ public class DownstreamBridge extends PacketHandler
     }
 
     @Override
+    public void handle(RegistryData registryData) throws Exception
+    {
+        registryAccumulationQueue.add( registryData );
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
+    public void handle(UpdateTags updateTags) throws Exception {
+        registryAccumulationQueue.add( updateTags );
+        throw CancelSendSignal.INSTANCE;
+    }
+
+    @Override
     public void handle(FinishConfiguration finishConfiguration) throws Exception
     {
         Runnable finish = () ->
         {
+            // send all possibly config state breaking packets at the same time.
+            while ( !registryAccumulationQueue.isEmpty() )
+            {
+                con.unsafe().sendPacket( registryAccumulationQueue.poll() );
+            }
+
             con.unsafe().sendPacket( finishConfiguration );
             con.sendQueuedPackets();
         };

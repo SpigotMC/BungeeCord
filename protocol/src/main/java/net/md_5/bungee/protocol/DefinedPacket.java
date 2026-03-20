@@ -254,6 +254,15 @@ public abstract class DefinedPacket
         return ret;
     }
 
+    public static void writeVarIntArray(int[] arr, ByteBuf buf)
+    {
+        writeVarInt( arr.length, buf );
+        for ( int value : arr )
+        {
+            writeVarInt( value, buf );
+        }
+    }
+
     public static void writeStringArray(List<String> s, ByteBuf buf)
     {
         writeVarInt( s.size(), buf );
