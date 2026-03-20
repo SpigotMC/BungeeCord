@@ -62,5 +62,4 @@ public class UpdateTags extends DefinedPacket
     {
         handler.handle( this );
     }
-
 }
