@@ -145,6 +145,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     @Setter
     private String lastCommandTabbed;
+    @Getter
+    @Setter
+    private CompletableFuture<Void> pipelineReconfigurationFuture;
     /*========================================================================*/
     @Getter
     private String displayName;

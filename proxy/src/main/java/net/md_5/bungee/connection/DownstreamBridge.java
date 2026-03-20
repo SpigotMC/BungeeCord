@@ -868,7 +868,7 @@ public class DownstreamBridge extends PacketHandler
             {
                 con.unsafe().sendPacket( registryAccumulationQueue.poll() );
             }
-
+            server.getConfigurationStateTracker().setAwaitingFinish( true );
             con.unsafe().sendPacket( finishConfiguration );
             con.sendQueuedPackets();
         };
@@ -890,7 +890,11 @@ public class DownstreamBridge extends PacketHandler
     {
         // call PlayerConfiguration event here.
         // For older clients its called when FinishConfiguration is received.
-        callConfigEvent( () -> con.unsafe().sendPacket( knownPacks ) );
+        callConfigEvent( () ->
+        {
+            server.getConfigurationStateTracker().incrementAwaitingKnownPacks();
+            con.unsafe().sendPacket( knownPacks );
+        } );
         throw CancelSendSignal.INSTANCE;
     }
 
@@ -935,10 +939,10 @@ public class DownstreamBridge extends PacketHandler
     {
         PlayerConfigurationEvent event = new PlayerConfigurationEvent(
                 con,
-                server.isFirstLogin() ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE,
+                server.getConfigurationStateTracker().isFirstLogin() ? PlayerConfigurationEvent.Reason.LOGIN : PlayerConfigurationEvent.Reason.RECONFIGURE,
                 eventLoopCallback( (result, error) -> runnable.run() )
         );
-        server.setFirstLogin( false );
+        server.getConfigurationStateTracker().setFirstLogin( false );
         bungee.getPluginManager().callEvent( event );
     }
 }

@@ -920,17 +920,17 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x04 )
             );
             TO_CLIENT.registerPacket(
-                RegistryData.class,
-                RegistryData::new,
-                map( ProtocolConstants.MINECRAFT_1_20_2, 0x05 ),
-                map( ProtocolConstants.MINECRAFT_1_20_5, 0x07 )
+                    RegistryData.class,
+                    RegistryData::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x05 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x07 )
             );
             TO_CLIENT.registerPacket(
-                UpdateTags.class,
-                UpdateTags::new,
-                map( ProtocolConstants.MINECRAFT_1_20_2, 0x08 ),
-                map( ProtocolConstants.MINECRAFT_1_20_3, 0x09 ),
-                map( ProtocolConstants.MINECRAFT_1_20_5, 0x0D )
+                    UpdateTags.class,
+                    UpdateTags::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_2, 0x08 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_3, 0x09 ),
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x0D )
             );
             TO_CLIENT.registerPacket(
                     StoreCookie.class,
@@ -996,6 +996,11 @@ public enum Protocol
                     KeepAlive::new,
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x03 ),
                     map( ProtocolConstants.MINECRAFT_1_20_5, 0x04 )
+            );
+            TO_SERVER.registerPacket(
+                    KnownPacks.class,
+                    KnownPacks::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x07 )
             );
             TO_SERVER.registerPacket(
                     CustomClickAction.class,
