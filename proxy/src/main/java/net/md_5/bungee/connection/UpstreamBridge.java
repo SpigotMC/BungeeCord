@@ -324,7 +324,6 @@ public class UpstreamBridge extends PacketHandler
 
     private void configureServer()
     {
-        con.setPipelineReconfigurationFuture( new CompletableFuture<>() );
         if ( con.getServer().getCh().getDecodeProtocol() == Protocol.LOGIN )
         {
             con.getServer().completeLogin( con );

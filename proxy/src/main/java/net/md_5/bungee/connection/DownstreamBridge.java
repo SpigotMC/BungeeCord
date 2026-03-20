@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.ServerConnection;
@@ -869,6 +870,7 @@ public class DownstreamBridge extends PacketHandler
                 con.unsafe().sendPacket( registryAccumulationQueue.poll() );
             }
             server.getConfigurationStateTracker().setAwaitingFinish( true );
+            con.setPipelineReconfigurationFuture( new CompletableFuture<>() );
             con.unsafe().sendPacket( finishConfiguration );
             con.sendQueuedPackets();
         };
