@@ -18,15 +18,6 @@
     <name>BungeeCord-Protocol</name>
     <description>Minimal implementation of the Minecraft protocol for use in BungeeCord</description>
 
-    <!-- We really shouldn't depend on external repositories -->
-    <repositories>
-        <repository>
-            <id>minecraft-libraries</id>
-            <name>Minecraft Libraries</name>
-            <url>https://libraries.minecraft.net/</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>com.mojang</groupId>

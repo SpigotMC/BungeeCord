@@ -81,6 +81,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!-- We really shouldn't depend on external repositories -->
+    <repositories>
+        <repository>
+            <id>minecraft-libraries</id>
+            <name>Minecraft Libraries</name>
+            <url>https://libraries.minecraft.net/</url>
+        </repository>
+    </repositories>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -194,6 +203,9 @@
                         <id>enforce</id>
                         <configuration>
                             <rules>
+                                <requireMavenVersion>
+                                    <version>3.6.3</version>
+                                </requireMavenVersion>
                                 <dependencyConvergence>
                                     <excludes>
                                         <!-- org.apache.maven:maven-resolver-transport-http is inconsistent -->
@@ -202,6 +214,14 @@
                                         <exclude>org.slf4j:slf4j-api</exclude>
                                     </excludes>
                                 </dependencyConvergence>
+                                <reactorModuleConvergence/>
+                                <requireExplicitDependencyScope/>
+                                <enforceBytecodeVersion>
+                                    <maxJdkVersion>17</maxJdkVersion>
+                                    <ignoreClasses>
+                                        <ignoreClass>org.jline.terminal.impl.ffm.*</ignoreClass>
+                                    </ignoreClasses>
+                                </enforceBytecodeVersion>
                             </rules>
                         </configuration>
                         <goals>
@@ -209,6 +229,13 @@
                         </goals>
                     </execution>
                 </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>extra-enforcer-rules</artifactId>
+                        <version>1.11.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
