@@ -11,7 +11,7 @@ updates:
       - dependency-name: "com.google.code.gson:gson"
         # Synchronised with Minecraft
       - dependency-name: "com.google.guava:guava"
-        # Requires Java 17
+        # Requires Java 21
       - dependency-name: "com.puppycrawl.tools:checkstyle"
         update-types: ["version-update:semver-major"]
         # Requires Java 17

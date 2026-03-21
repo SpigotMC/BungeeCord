@@ -75,9 +75,6 @@
         </module>
         <module name="RightCurly"/>
 
-        <!-- See http://checkstyle.sourceforge.net/config_design.html -->
-        <module name="FinalClass"/>
-
         <!-- See http://checkstyle.sourceforge.net/config_misc.html -->
         <module name="ArrayTypeStyle"/>
         <module name="CommentsIndentation"/>
