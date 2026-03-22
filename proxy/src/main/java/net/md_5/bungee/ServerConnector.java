@@ -387,7 +387,7 @@ public class ServerConnector extends PacketHandler
                     // Disconnect, otherwise the client would get stuck
                     // After finishing the config state we will connect the client to the last requested server.
                     ch.close();
-                    return;
+                    throw CancelSendSignal.INSTANCE;
                 }
             } else
             {
