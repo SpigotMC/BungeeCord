@@ -263,6 +263,8 @@ public class BungeeCord extends ProxyServer
      */
     public void start() throws Exception
     {
+        isRunning = true;
+
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
         if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null && System.getProperty( "io.netty.leakDetection.level" ) == null )
         {
@@ -297,8 +299,6 @@ public class BungeeCord extends ProxyServer
 
             getLogger().warning( "MinecraftForge support is currently unmaintained and may have unresolved issues. Please use at your own risk." );
         }
-
-        isRunning = true;
 
         pluginManager.enablePlugins();
 
@@ -496,11 +496,11 @@ public class BungeeCord extends ProxyServer
         }
 
         getLogger().info( "Closing IO threads" );
-        eventLoops.shutdownGracefully();
         try
         {
+            eventLoops.shutdownGracefully();
             eventLoops.awaitTermination( Long.MAX_VALUE, TimeUnit.NANOSECONDS );
-        } catch ( InterruptedException ex )
+        } catch ( Exception ex )
         {
         }
 
