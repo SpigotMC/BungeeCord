@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.packet.PlayerListItem;
 import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PlayerListItemUpdate;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.RegistryData;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardDisplay;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -59,6 +60,7 @@ import net.md_5.bungee.protocol.packet.Title;
 import net.md_5.bungee.protocol.packet.TitleTimes;
 import net.md_5.bungee.protocol.packet.Transfer;
 import net.md_5.bungee.protocol.packet.UnsignedClientCommand;
+import net.md_5.bungee.protocol.packet.UpdateTags;
 import net.md_5.bungee.protocol.packet.ViewDistance;
 
 public abstract class AbstractPacketHandler
@@ -301,6 +303,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(KnownPacks knownPacks) throws Exception
+    {
+    }
+
+    public void handle(RegistryData registryData) throws Exception
+    {
+    }
+
+    public void handle(UpdateTags updateTags) throws Exception
     {
     }
 }
