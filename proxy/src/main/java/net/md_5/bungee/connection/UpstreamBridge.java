@@ -33,6 +33,7 @@ import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.CustomClickAction;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
@@ -363,6 +364,17 @@ public class UpstreamBridge extends PacketHandler
         if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
         {
             throw CancelSendSignal.INSTANCE;
+        }
+    }
+
+    @Override
+    public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+        if ( con.getLastConfigCancelledTarget() != null )
+        {
+            // we are in game phase now so we can try to connect to the server again.
+            con.connect( con.getLastConfigCancelledTarget() );
+            con.setLastConfigCancelledTarget( null );
         }
     }
 
