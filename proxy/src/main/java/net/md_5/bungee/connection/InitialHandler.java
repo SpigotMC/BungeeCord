@@ -503,6 +503,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
         Preconditions.checkState( EncryptionUtil.check( loginRequest.getPublicKey(), encryptResponse, request ), "Invalid verification" );
+        thisState = State.FINISHING;
 
         SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
         BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
@@ -551,7 +552,6 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 }
             }
         };
-        thisState = State.FINISHING;
         HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
     }
 
