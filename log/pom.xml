@@ -22,7 +22,7 @@
         <dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
-            <version>4.0.12</version>
+            <version>4.0.14</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
