@@ -16,6 +16,7 @@ import java.util.BitSet;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import lombok.RequiredArgsConstructor;
@@ -36,9 +37,26 @@ import net.md_5.bungee.protocol.util.TagUtil;
 public abstract class DefinedPacket
 {
 
+    public static <T> Optional<T> readOptional(Function<ByteBuf, T> reader, ByteBuf buf)
+    {
+        return buf.readBoolean() ? Optional.of( reader.apply( buf ) ) : Optional.empty();
+    }
+
     public static <T> T readNullable(Function<ByteBuf, T> reader, ByteBuf buf)
     {
         return buf.readBoolean() ? reader.apply( buf ) : null;
+    }
+
+    public static <T> void writeOptional(Optional<T> t0, BiConsumer<T, ByteBuf> writer, ByteBuf buf)
+    {
+        if ( t0.isPresent() )
+        {
+            buf.writeBoolean( true );
+            writer.accept( t0.get(), buf );
+        } else
+        {
+            buf.writeBoolean( false );
+        }
     }
 
     public static <T> void writeNullable(T t0, BiConsumer<T, ByteBuf> writer, ByteBuf buf)

@@ -296,7 +296,7 @@ public class DownstreamBridge extends PacketHandler
                 t.setSuffix( team.getSuffix().getLeftOrCompute( (component) -> con.getChatSerializer().toString( component ) ) );
                 t.setFriendlyFire( team.getFriendlyFire() );
                 t.setNameTagVisibility( team.getNameTagVisibility().isLeft() ? team.getNameTagVisibility().getLeft() : team.getNameTagVisibility().getRight().getKey() );
-                t.setColor( team.getColor() );
+                t.setColor( team.getColor().orElse( 0 ) );
                 if ( team.getCollisionRule() != null )
                 {
                     t.setCollisionRule( team.getCollisionRule().isLeft() ? team.getCollisionRule().getLeft() : team.getCollisionRule().getRight().getKey() );

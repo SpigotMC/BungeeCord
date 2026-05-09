@@ -1,6 +1,7 @@
 package net.md_5.bungee.protocol.packet;
 
 import io.netty.buffer.ByteBuf;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -32,7 +33,7 @@ public class Team extends DefinedPacket
     private Either<String, NameTagVisibility> nameTagVisibility;
     private Either<String, CollisionRule> collisionRule;
     //
-    private int color;
+    private Optional<Integer> color;
     private byte friendlyFire;
     private String[] players;
 
@@ -76,7 +77,13 @@ public class Team extends DefinedPacket
                     collisionRule = Either.left( readString( buf ) );
                 }
             }
-            color = ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte();
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+            {
+                color = readOptional( DefinedPacket::readVarInt, buf );
+            } else
+            {
+                color = Optional.of( ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 ) ? readVarInt( buf ) : buf.readByte() );
+            }
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
             {
                 prefix = readEitherBaseComponent( buf, protocolVersion, false );
@@ -121,14 +128,17 @@ public class Team extends DefinedPacket
                 }
             }
 
-            if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
             {
-                writeVarInt( color, buf );
+                writeOptional( color, DefinedPacket::writeVarInt, buf );
+            } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_13 )
+            {
+                writeVarInt( color.get(), buf );
                 writeEitherBaseComponent( prefix, buf, protocolVersion );
                 writeEitherBaseComponent( suffix, buf, protocolVersion );
             } else
             {
-                buf.writeByte( color );
+                buf.writeByte( color.get() );
             }
         }
         if ( mode == 0 || mode == 3 || mode == 4 )
