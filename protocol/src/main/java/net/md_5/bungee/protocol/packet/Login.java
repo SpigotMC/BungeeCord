@@ -42,6 +42,7 @@ public class Login extends DefinedPacket
     private Location deathLocation;
     private int portalCooldown;
     private int seaLevel;
+    private boolean onlineMode;
     private boolean secureProfile;
 
     @Override
@@ -165,6 +166,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             seaLevel = readVarInt( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+        {
+            onlineMode = buf.readBoolean();
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {
@@ -300,6 +305,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             writeVarInt( seaLevel, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+        {
+            buf.writeBoolean( onlineMode );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {
