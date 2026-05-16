@@ -59,10 +59,10 @@ public class JavaZlib implements BungeeZlib
 
             while ( !deflater.finished() )
             {
-                int count = deflater.deflate(bufferOut);
+                int count = deflater.deflate( bufferOut );
                 bufferOut.flip();
 
-                out.writeBytes(bufferOut);
+                out.writeBytes( bufferOut );
                 bufferOut.flip();
 
                 if ( count == 0 && deflater.needsInput() )
@@ -80,10 +80,10 @@ public class JavaZlib implements BungeeZlib
 
             while ( !inflater.finished() && inflater.getBytesRead() < readableBytes )
             {
-                int count = inflater.inflate(bufferOut);
+                int count = inflater.inflate( bufferOut );
                 bufferOut.flip();
 
-                out.writeBytes(bufferOut);
+                out.writeBytes( bufferOut );
                 bufferOut.flip();
 
                 if ( count == 0 && inflater.needsInput() )
