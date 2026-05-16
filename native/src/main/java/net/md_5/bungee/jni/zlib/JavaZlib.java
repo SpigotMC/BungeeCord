@@ -1,6 +1,7 @@
 package net.md_5.bungee.jni.zlib;
 
 import io.netty.buffer.ByteBuf;
+import java.nio.ByteBuffer;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -8,7 +9,7 @@ import java.util.zip.Inflater;
 public class JavaZlib implements BungeeZlib
 {
 
-    private final byte[] buffer = new byte[ 8192 ];
+    private final ByteBuffer buffer = ByteBuffer.allocate( 8192 );
     //
     private boolean compress;
     private Deflater deflater;
@@ -45,29 +46,48 @@ public class JavaZlib implements BungeeZlib
     @Override
     public void process(ByteBuf in, ByteBuf out) throws DataFormatException
     {
-        byte[] inData = new byte[ in.readableBytes() ];
-        in.readBytes( inData );
+        int bufferIndex = 0;
+        ByteBuffer[] buffers = in.nioBuffers();
+        buffer.clear();
 
         if ( compress )
         {
-            deflater.setInput( inData );
+            deflater.setInput( buffers[ 0 ] );
             deflater.finish();
 
             while ( !deflater.finished() )
             {
                 int count = deflater.deflate( buffer );
-                out.writeBytes( buffer, 0, count );
+                buffer.flip();
+
+                out.writeBytes( buffer );
+                buffer.flip();
+
+                if ( count == 0 && deflater.needsInput() )
+                {
+                    deflater.setInput( buffers[ ++bufferIndex ] );
+                }
             }
 
             deflater.reset();
         } else
         {
-            inflater.setInput( inData );
+            int inLength = in.readableBytes();
 
-            while ( !inflater.finished() && inflater.getTotalIn() < inData.length )
+            inflater.setInput( buffers[ 0 ] );
+
+            while ( !inflater.finished() && inflater.getBytesRead() < inLength )
             {
                 int count = inflater.inflate( buffer );
-                out.writeBytes( buffer, 0, count );
+                buffer.flip();
+
+                out.writeBytes( buffer );
+                buffer.flip();
+
+                if ( count == 0 && inflater.needsInput() )
+                {
+                    inflater.setInput( buffers[ ++bufferIndex ] );
+                }
             }
 
             inflater.reset();
