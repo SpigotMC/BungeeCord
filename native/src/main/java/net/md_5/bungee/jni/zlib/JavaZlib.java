@@ -9,7 +9,7 @@ import java.util.zip.Inflater;
 public class JavaZlib implements BungeeZlib
 {
 
-    private final ByteBuffer buffer = ByteBuffer.allocate( 8192 );
+    private final ByteBuffer bufferOut = ByteBuffer.allocate( 8192 );
     //
     private boolean compress;
     private Deflater deflater;
@@ -33,6 +33,8 @@ public class JavaZlib implements BungeeZlib
     @Override
     public void free()
     {
+        bufferOut.clear();
+
         if ( deflater != null )
         {
             deflater.end();
@@ -47,46 +49,46 @@ public class JavaZlib implements BungeeZlib
     public void process(ByteBuf in, ByteBuf out) throws DataFormatException
     {
         int bufferIndex = 0;
-        ByteBuffer[] buffers = in.nioBuffers();
-        buffer.clear();
+        ByteBuffer[] buffersIn = in.nioBuffers();
+        bufferOut.clear();
 
         if ( compress )
         {
-            deflater.setInput( buffers[ 0 ] );
+            deflater.setInput( buffersIn[ bufferIndex ] );
             deflater.finish();
 
             while ( !deflater.finished() )
             {
-                int count = deflater.deflate( buffer );
-                buffer.flip();
+                int count = deflater.deflate(bufferOut);
+                bufferOut.flip();
 
-                out.writeBytes( buffer );
-                buffer.flip();
+                out.writeBytes(bufferOut);
+                bufferOut.flip();
 
                 if ( count == 0 && deflater.needsInput() )
                 {
-                    deflater.setInput( buffers[ ++bufferIndex ] );
+                    deflater.setInput( buffersIn[ ++bufferIndex ] );
                 }
             }
 
             deflater.reset();
         } else
         {
-            int inLength = in.readableBytes();
+            int readableBytes = in.readableBytes();
 
-            inflater.setInput( buffers[ 0 ] );
+            inflater.setInput( buffersIn[ 0 ] );
 
-            while ( !inflater.finished() && inflater.getBytesRead() < inLength )
+            while ( !inflater.finished() && inflater.getBytesRead() < readableBytes )
             {
-                int count = inflater.inflate( buffer );
-                buffer.flip();
+                int count = inflater.inflate(bufferOut);
+                bufferOut.flip();
 
-                out.writeBytes( buffer );
-                buffer.flip();
+                out.writeBytes(bufferOut);
+                bufferOut.flip();
 
                 if ( count == 0 && inflater.needsInput() )
                 {
-                    inflater.setInput( buffers[ ++bufferIndex ] );
+                    inflater.setInput( buffersIn[ ++bufferIndex ] );
                 }
             }
 
