@@ -13,7 +13,6 @@ import javax.crypto.spec.IvParameterSpec;
 public class JavaCipher implements BungeeCipher
 {
 
-    private boolean type;
     private final Cipher cipher;
     private static final FastThreadLocal<ByteBuffer> bufferOutLocal = new EmptyByteThreadLocal();
 
@@ -41,7 +40,6 @@ public class JavaCipher implements BungeeCipher
     @Override
     public void init(boolean forEncryption, SecretKey key) throws GeneralSecurityException
     {
-        this.type = forEncryption;
         int mode = forEncryption ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE;
         cipher.init( mode, key, new IvParameterSpec( key.getEncoded() ) );
     }
@@ -49,7 +47,6 @@ public class JavaCipher implements BungeeCipher
     @Override
     public void cipher(ByteBuf in, ByteBuf out) throws ShortBufferException
     {
-        System.out.println( this.type ? "enc" : "dec" );
         int readableBytes = in.readableBytes();
 
         ByteBuffer bufferOut = bufferOutLocal.get();
