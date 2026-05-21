@@ -225,6 +225,45 @@ public final class ComponentStyle implements Cloneable
                 && strikethrough == null && obfuscated == null;
     }
 
+    boolean isLegacyFormattingUpgrade(ComponentStyle newStyle)
+    {
+        return ( newStyle.isBold() || !isBold() )
+                && ( newStyle.isItalic() || !isItalic() )
+                && ( newStyle.isUnderlined() || !isUnderlined() )
+                && ( newStyle.isStrikethrough() || !isStrikethrough() )
+                && ( newStyle.isObfuscated() || !isObfuscated() );
+    }
+
+    String getLegacyFormatting()
+    {
+        StringBuilder legacy = new StringBuilder();
+        if ( color != null )
+        {
+            legacy.append( color );
+        }
+        if ( bold == Boolean.TRUE )
+        {
+            legacy.append( ChatColor.BOLD );
+        }
+        if ( italic == Boolean.TRUE )
+        {
+            legacy.append( ChatColor.ITALIC );
+        }
+        if ( underlined == Boolean.TRUE )
+        {
+            legacy.append( ChatColor.UNDERLINE );
+        }
+        if ( strikethrough == Boolean.TRUE )
+        {
+            legacy.append( ChatColor.STRIKETHROUGH );
+        }
+        if ( obfuscated == Boolean.TRUE )
+        {
+            legacy.append( ChatColor.MAGIC );
+        }
+        return legacy.toString();
+    }
+
     @Override
     public ComponentStyle clone()
     {
