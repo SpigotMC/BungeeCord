@@ -2,6 +2,8 @@ package net.md_5.bungee.api.chat;
 
 import static net.md_5.bungee.api.ChatColor.*;
 import static org.junit.jupiter.api.Assertions.*;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import java.awt.Color;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -9,6 +11,7 @@ import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import net.md_5.bungee.api.chat.hover.content.Entity;
+import net.md_5.bungee.api.chat.hover.content.Item;
 import net.md_5.bungee.api.chat.hover.content.Text;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.junit.jupiter.api.Test;
@@ -95,6 +98,173 @@ public class ComponentsTest
         BaseComponent[] uuidComponent = ComponentSerializer.parse( "{\"translate\":\"multiplayer.player.joined\",\"with\":[{\"text\":\"Rexcantor64\",\"hoverEvent\":{\"contents\":{\"type\":\"minecraft:player\",\"id\":[1328556382,-2138814985,-1895806765,-1039963041],\"name\":\"Rexcantor64\"},\"action\":\"show_entity\"},\"insertion\":\"Rexcantor64\",\"clickEvent\":{\"action\":\"suggest_command\",\"value\":\"/tell Rexcantor64 \"}}],\"color\":\"yellow\"}" );
         assertEquals( "4f30295e-8084-45f7-8f00-48d3c2036c5f", ( (Entity) ( (TranslatableComponent) uuidComponent[0] ).getWith().get( 0 ).getHoverEvent().getContents().get( 0 ) ).getId() );
         testDissembleReassemble( uuidComponent );
+    }
+
+    @Test
+    public void testLegacyNullConstructor()
+    {
+        // Test that the legacy constructor with null tag is serialized correctly as the new constructor if tag is null
+        Item item = new Item( "minecraft:elytra", 1, null );
+        assertEquals( "minecraft:elytra", item.getId() );
+        assertEquals( 1, item.getCount() );
+        assertNull( item.getComponents() );
+        assertNull( item.getTag() );
+        BaseComponent text = new TextComponent( "Test" );
+        text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, item ) );
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:elytra\",\"count\":1}},\"text\":\"Test\"}", ComponentSerializer.toString( text ) );
+    }
+
+    @Test
+    public void testNullComponents()
+    {
+        Item item = new Item( "minecraft:elytra", null );
+        assertEquals( "minecraft:elytra", item.getId() );
+        assertEquals( 1, item.getCount() );
+    }
+
+    @Test
+    public void testNullValues()
+    {
+        JsonObject item = JsonParser.parseString( "{\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5},\"DataVersion\":4440}" ).getAsJsonObject();
+        Item hoverItem = new Item( item );
+        assertNull( hoverItem.getId(), "id should be null before serialization" );
+        assertEquals( 1, hoverItem.getCount() );
+        assertNotNull( hoverItem.getComponents() );
+        assertNull( hoverItem.getTag() );
+        BaseComponent text = new TextComponent( "Test" );
+        text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, hoverItem ) );
+        // serialize
+        String serialized = ComponentSerializer.toString( text );
+        // default id is stone, should always serialize count if using the modern components system
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:stone\",\"count\":1,\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}}},\"text\":\"Test\"}", serialized );
+        // round trip
+        HoverEvent hoverEvent = ComponentSerializer.deserialize( serialized ).getHoverEvent();
+        Item parsedItem = (Item) hoverEvent.getContents().get( 0 );
+        assertEquals( "minecraft:stone", parsedItem.getId(), "id should be stone after round trip" );
+        assertEquals( 1, parsedItem.getCount() );
+        assertEquals( 1, parsedItem.getComponents().getAsJsonObject().get( "minecraft:enchantments" ).getAsJsonObject().get( "minecraft:mending" ).getAsInt() );
+        assertEquals( 5, parsedItem.getComponents().getAsJsonObject().get( "minecraft:repair_cost" ).getAsInt() );
+    }
+
+    @Test
+    public void testNullTag()
+    {
+        ItemTag itemTag = ItemTag.ofNbt( "{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}" );
+        Item hoveritem = new Item( null, -1, itemTag );
+        BaseComponent text = new TextComponent( "Test" );
+        text.setHoverEvent( new HoverEvent( HoverEvent.Action.SHOW_ITEM, hoveritem ) );
+        String serialized = ComponentSerializer.toString( text );
+        // default id is air for legacy Tag data system
+        assertEquals( "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:air\",\"tag\":\"{\\\"minecraft:enchantments\\\":{\\\"minecraft:mending\\\":1},\\\"minecraft:repair_cost\\\":5}\"}},\"text\":\"Test\"}", serialized );
+        // round trip
+        HoverEvent hoverEvent = ComponentSerializer.deserialize( serialized ).getHoverEvent();
+        Item parsedItem = (Item) hoverEvent.getContents().get( 0 );
+        assertEquals( "minecraft:air", parsedItem.getId(), "id should be air after round trip" );
+        assertEquals( -1, parsedItem.getCount() );
+        assertNotNull( parsedItem.getTag() );
+        assertEquals( "{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5}", parsedItem.getTag().getNbt() );
+    }
+
+    @Test
+    public void testItemComponents()
+    {
+        JsonObject item = JsonParser.parseString( "{\"id\":\"minecraft:elytra\",\"count\":1,\"components\":{\"minecraft:enchantments\":{\"minecraft:mending\":1},\"minecraft:repair_cost\":5},\"DataVersion\":4440}" ).getAsJsonObject();
+        Item parsedItem = new Item( item );
+        assertEquals( "minecraft:elytra", parsedItem.getId() );
+        assertEquals( 1, parsedItem.getCount() );
+        assertNotNull( parsedItem.getComponents() );
+        JsonObject components = parsedItem.getComponents().getAsJsonObject();
+        assertEquals( 1, components.getAsJsonObject( "minecraft:enchantments" ).get( "minecraft:mending" ).getAsInt() );
+        assertEquals( 5, components.get( "minecraft:repair_cost" ).getAsInt() );
+    }
+
+    // Verify that the Item Content is serialized correctly for both versions, example for a complex nested item component
+    // Bukkit.getUnsafe().serializeItemAsJson(bukkitItem): {"id":"minecraft:firework_rocket","count":1,"components":{"minecraft:fireworks":{"flight_duration":1,"explosions":[{"fade_colors":[16383998],"has_twinkle":true,"shape":"creeper","colors":[8439583]},{"shape":"large_ball","colors":[3847130]}]}},"DataVersion":4440}
+    // bukkitItem.getItemMeta().getAsString():             {"minecraft:fireworks":{explosions:[{colors:[8439583],fade_colors:[16383998],has_twinkle:1b,shape:"creeper"},{colors:[3847130],shape:"large_ball"}],flight_duration:1b}}
+    @Test
+    public void testItemComponentSerialization_fireworks()
+    {
+        String itemJson = "{\"id\":\"minecraft:firework_rocket\",\"count\":1,\"components\":{\"minecraft:fireworks\":{\"flight_duration\":1,\"explosions\":[{\"fade_colors\":[16383998],\"has_twinkle\":true,\"shape\":\"creeper\",\"colors\":[8439583]},{\"shape\":\"large_ball\",\"colors\":[3847130]}]}},\"DataVersion\":4440}";
+        Item item = new Item( JsonParser.parseString( itemJson ).getAsJsonObject() );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, item );
+        TextComponent component = new TextComponent( "Test" );
+        component.setHoverEvent( hoverEvent );
+        String actual = ComponentSerializer.toString( component );
+        String expected = "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:firework_rocket\",\"count\":1,\"components\":{\"minecraft:fireworks\":{\"flight_duration\":1,\"explosions\":[{\"fade_colors\":[16383998],\"has_twinkle\":true,\"shape\":\"creeper\",\"colors\":[8439583]},{\"shape\":\"large_ball\",\"colors\":[3847130]}]}}}},\"text\":\"Test\"}";
+        assertEquals( expected, actual );
+    }
+    @Test
+    public void testItemTagSerialization_fireworks()
+    {
+        String nbt = "{\"minecraft:fireworks\":{explosions:[{colors:[8439583],fade_colors:[16383998],has_twinkle:1b,shape:\"creeper\"},{colors:[3847130],shape:\"large_ball\"}],flight_duration:1b}}";
+        ItemTag itemTag = ItemTag.ofNbt( nbt );
+        Item item = new Item( "minecraft:firework_rocket", 1, itemTag );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, item );
+        TextComponent component = new TextComponent( "Test" );
+        component.setHoverEvent( hoverEvent );
+        String actual = ComponentSerializer.toString( component );
+        String expected = "{\"hoverEvent\":{\"action\":\"show_item\",\"contents\":{\"id\":\"minecraft:firework_rocket\",\"Count\":1,\"tag\":\"{\\\"minecraft:fireworks\\\":{explosions:[{colors:[8439583],fade_colors:[16383998],has_twinkle:1b,shape:\\\"creeper\\\"},{colors:[3847130],shape:\\\"large_ball\\\"}],flight_duration:1b}}\"}},\"text\":\"Test\"}";
+        assertEquals( expected, actual );
+    }
+
+    @Test
+    public void testItemComponentsSerialization()
+    {
+        // Build a modern item with components
+        JsonObject components = new JsonObject();
+        components.addProperty( "minecraft:custom_name", "Sky Wings" );
+        components.addProperty( "minecraft:repair_cost", 4 );
+        components.add( "minecraft:enchantments", new JsonObject() );
+        components.getAsJsonObject( "minecraft:enchantments" ).addProperty( "minecraft:mending", 1 );
+
+        Item item = new Item( "minecraft:elytra", components, 1 );
+        HoverEvent hoverEvent = new HoverEvent( HoverEvent.Action.SHOW_ITEM, item );
+
+        TextComponent component = new TextComponent( "Test" );
+        component.setHoverEvent( hoverEvent );
+
+        String json = ComponentSerializer.toString( component );
+        assertEquals( json, "{"
+            + "\"hoverEvent\":{"
+                + "\"action\":\"show_item\","
+                + "\"contents\":{"
+                    + "\"id\":\"minecraft:elytra\","
+                    + "\"count\":1,"
+                    + "\"components\":{"
+                        + "\"minecraft:custom_name\":\"Sky Wings\","
+                        + "\"minecraft:repair_cost\":4,"
+                        + "\"minecraft:enchantments\":{\"minecraft:mending\":1}"
+                    + "}"
+                + "}"
+            + "},"
+            + "\"text\":\"Test\"}" );
+
+        // Validate JSON shape uses modern keys and preserves components
+        JsonObject root = JsonParser.parseString( json ).getAsJsonObject();
+        JsonObject hover = root.getAsJsonObject( "hoverEvent" );
+        assertNotNull( hover );
+        JsonObject contents = hover.getAsJsonObject( "contents" );
+        assertNotNull( contents );
+        assertEquals( "minecraft:elytra", contents.get( "id" ).getAsString() );
+        assertNull( contents.get( "Count" ), "Legacy count should not be present in modern components format" );
+        assertEquals( 1, contents.get( "count" ).getAsInt(), "Modern count key should be present" );
+        assertTrue( contents.has( "components" ) );
+        JsonObject serializedComponents = contents.getAsJsonObject( "components" );
+        assertEquals( "Sky Wings", serializedComponents.get( "minecraft:custom_name" ).getAsString() );
+        assertEquals( 4, serializedComponents.get( "minecraft:repair_cost" ).getAsInt() );
+        assertEquals( 1, serializedComponents.get( "minecraft:enchantments" ).getAsJsonObject().get( "minecraft:mending" ).getAsInt() );
+
+        // Round-trip back to object and validate fields
+        BaseComponent deserialized = ComponentSerializer.deserialize( json );
+        Item parsedItem = (Item) deserialized.getHoverEvent().getContents().get( 0 );
+        assertEquals( "minecraft:elytra", parsedItem.getId() );
+        assertEquals( 1, parsedItem.getCount() );
+        assertNotNull( parsedItem.getComponents() );
+        // sanity check for nested component after deserialization
+        JsonObject deserializedComponents = parsedItem.getComponents().getAsJsonObject();
+        assertEquals( "Sky Wings", deserializedComponents.get( "minecraft:custom_name" ).getAsString() );
+        assertEquals( 4, deserializedComponents.get( "minecraft:repair_cost" ).getAsInt() );
+        assertEquals( 1, deserializedComponents.getAsJsonObject( "minecraft:enchantments" ).get( "minecraft:mending" ).getAsInt() );
     }
 
     @Test
