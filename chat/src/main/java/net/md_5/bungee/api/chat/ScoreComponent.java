@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * This component displays the score based on a player score on the scoreboard.
@@ -25,7 +24,6 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class ScoreComponent extends BaseComponent
@@ -97,5 +95,25 @@ public final class ScoreComponent extends BaseComponent
         addFormat( builder );
         builder.append( this.value );
         super.toLegacyText( builder );
+    }
+
+    @Override
+    String toStringName()
+    {
+        return "Score";
+    }
+
+    @Override
+    boolean toString(StringBuilder builder, boolean comma)
+    {
+        if ( comma ) builder.append( ", " );
+        comma = true;
+        builder.append( "name=" ).append( name ).append( ", " )
+                .append( "objective=" ).append( objective );
+        if ( value != null )
+        {
+            builder.append( ", " ).append( "value=" ).append( value );
+        }
+        return super.toString( builder, comma );
     }
 }
