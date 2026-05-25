@@ -22,7 +22,7 @@ public class UnregisteringListenerTest
         fail( "Event listener wasn't unregistered" );
     }
 
-    public static class TestEvent
+    public static class TestEvent implements EventBusEvent
     {
     }
 }
