@@ -41,8 +41,13 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 public class BungeeServerInfo implements ServerInfo
 {
 
+    private static final String SERVER_PERMISSION = "bungeecord.server.%s";
+    private static final String SERVER_PERMISSION_WILDCARD = String.format( SERVER_PERMISSION, "*" );
+
     @Getter
     private final String name;
+    @Getter
+    private final String permission = String.format( SERVER_PERMISSION, getName() );
     @Getter
     private final SocketAddress socketAddress;
     private final Collection<ProxiedPlayer> players = new ArrayList<>();
@@ -73,16 +78,10 @@ public class BungeeServerInfo implements ServerInfo
     }
 
     @Override
-    public String getPermission()
-    {
-        return "bungeecord.server." + name;
-    }
-
-    @Override
     public boolean canAccess(CommandSender player)
     {
         Preconditions.checkNotNull( player, "player" );
-        return !restricted || player.hasPermission( getPermission() );
+        return !restricted || ( player.hasPermission( SERVER_PERMISSION_WILDCARD ) || player.hasPermission( getPermission() ) );
     }
 
     @Override
