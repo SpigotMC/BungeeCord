@@ -146,6 +146,16 @@ public final class Configuration
         return new LinkedHashSet<>( self.keySet() );
     }
 
+    /**
+     * Gets the Map this Configuration represents.
+     *
+     * @return the map this section stores.
+     */
+    public Map<String, Object> getSection()
+    {
+        return Collections.unmodifiableMap( self );
+    }
+
     /*------------------------------------------------------------------------*/
     public byte getByte(String path)
     {
