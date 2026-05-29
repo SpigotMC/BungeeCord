@@ -621,7 +621,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
                 {
-                    unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                    unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), null ) );
                     ch.setProtocol( Protocol.GAME );
                 }
                 finish2();

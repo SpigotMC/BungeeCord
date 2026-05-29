@@ -21,6 +21,7 @@ public class LoginSuccess extends DefinedPacket
     private UUID uuid;
     private String username;
     private Property[] properties;
+    private UUID sessionId;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -41,6 +42,10 @@ public class LoginSuccess extends DefinedPacket
         {
             // Whether the client should disconnect on its own if it receives invalid data from the server
             buf.readBoolean();
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+        {
+            sessionId = readUUID( buf );
         }
     }
 
@@ -64,6 +69,10 @@ public class LoginSuccess extends DefinedPacket
             // Whether the client should disconnect on its own if it receives invalid data from the server
             // Vanilla sends true so we also send true
             buf.writeBoolean( true );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+        {
+            writeUUID( sessionId, buf );
         }
     }
 
