@@ -15,6 +15,7 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 
 @RequiredArgsConstructor
@@ -35,7 +36,33 @@ public class ServerConnection implements Server
     private final Queue<DefinedPacket> packetQueue = new ArrayDeque<>();
     @Getter
     @Setter
-    private boolean firstLogin;
+    private ConfigurationStateTracker configurationStateTracker = new ConfigurationStateTracker();
+
+    public static class ConfigurationStateTracker
+    {
+        @Getter
+        @Setter
+        private boolean firstLogin;
+        private int awaitingKnownPacks;
+        @Getter
+        @Setter
+        private boolean awaitingFinish;
+
+        public boolean isAwaitingKnownPacks()
+        {
+            return awaitingKnownPacks > 0;
+        }
+
+        public void incrementAwaitingKnownPacks()
+        {
+            ++awaitingKnownPacks;
+        }
+
+        public void decrementAwaitingKnownPacks()
+        {
+            Preconditions.checkState( --awaitingKnownPacks >= 0, "awaitingKnownPacks must be >= 0" );
+        }
+    }
 
     private final Unsafe unsafe = new Unsafe()
     {
@@ -152,5 +179,24 @@ public class ServerConnection implements Server
 
         private final long id;
         private final long time;
+    }
+
+    public void completeLogin(UserConnection con)
+    {
+        ch.setDecodeProtocol( Protocol.CONFIGURATION );
+        ch.write( new LoginAcknowledged() );
+        ch.setEncodeProtocol( Protocol.CONFIGURATION );
+
+        // send the registered plugin channel as soon as the server is in config state
+        ch.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
+        if ( con.getSettings() != null )
+        {
+            ch.write( con.getSettings() );
+        }
+        if ( con.getPendingConnection().getBrandMessage() != null )
+        {
+            ch.write( con.getPendingConnection().getBrandMessage() );
+        }
+        sendQueuedPackets();
     }
 }

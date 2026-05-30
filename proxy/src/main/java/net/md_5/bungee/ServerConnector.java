@@ -374,8 +374,21 @@ public class ServerConnector extends PacketHandler
         {
             if ( user.getServer() != null )
             {
-                if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
+                Protocol protocol = user.getCh().getEncodeProtocol();
+                if ( protocol == Protocol.CONFIGURATION )
                 {
+                    server.completeLogin( user );
+                } else
+                {
+                    // if the client is currently in a protocol transition
+                    // we have to wait with this until it has finished with that,
+                    // otherwise the client gets an get java.util.NoSuchElementException: decoder
+                    if ( user.getPipelineReconfigurationFuture() != null )
+                    {
+                        user.getPipelineReconfigurationFuture().thenAccept( (v) -> cutThrough( server ) );
+                        return;
+                    }
+
                     if ( user.isBundling() )
                     {
                         user.toggleBundling();
