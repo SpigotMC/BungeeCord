@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 public class EventBus
 {
 
+    private static final int slowEventThreshold = Math.min( Integer.getInteger( "net.md_5.bungee.slowEventThreshold", 50 ), 50 );
     private final Map<Class<?>, Map<Byte, Map<Object, Method[]>>> byListenerAndPriority = new HashMap<>();
     private final Map<Class<?>, EventHandlerMethod[]> byEventBaked = new ConcurrentHashMap<>();
     private final Lock lock = new ReentrantLock();
@@ -59,7 +60,7 @@ public class EventBus
                 }
 
                 long elapsed = System.nanoTime() - start;
-                if ( elapsed > 50000000 )
+                if ( elapsed > slowEventThreshold * 1000000L )
                 {
                     logger.log( Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
                     {
