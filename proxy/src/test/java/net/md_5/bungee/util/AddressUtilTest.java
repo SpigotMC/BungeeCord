@@ -16,4 +16,18 @@ public class AddressUtilTest
         InetSocketAddress addr2 = new InetSocketAddress( "0:0:0:0:0:0:0:1", 25577 );
         assertEquals( "0:0:0:0:0:0:0:1", AddressUtil.sanitizeAddress( addr2 ) );
     }
+
+    @Test
+    public void testUnresolvedAddress()
+    {
+        InetSocketAddress unresolved = InetSocketAddress.createUnresolved( "localhost", 8080 );
+        assertThrows( IllegalArgumentException.class, () -> AddressUtil.sanitizeAddress( unresolved ) );
+    }
+
+    @Test
+    public void testIPv4Address()
+    {
+        InetSocketAddress addr = new InetSocketAddress( "127.0.0.1", 8080 );
+        assertEquals( "127.0.0.1", AddressUtil.sanitizeAddress( addr ) );
+    }
 }
