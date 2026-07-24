@@ -1,15 +1,18 @@
 package net.md_5.bungee.conf;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import lombok.Getter;
+import lombok.Synchronized;
 import net.md_5.bungee.api.Favicon;
 import net.md_5.bungee.api.ProxyConfig;
 import net.md_5.bungee.api.ProxyServer;
@@ -42,6 +45,7 @@ public class Configuration implements ProxyConfig
      * Set of all servers.
      */
     private Map<String, ServerInfo> servers;
+    private final ReentrantLock serversLock = new ReentrantLock();
     /**
      * Should we check minecraft.net auth.
      */
@@ -71,6 +75,7 @@ public class Configuration implements ProxyConfig
     private int maxPacketsPerSecond = 1 << 12;
     private int maxPacketDataPerSecond = 1 << 25;
 
+    @Synchronized("serversLock")
     public void load()
     {
         ConfigurationAdapter adapter = ProxyServer.getInstance().getConfigurationAdapter();
@@ -165,5 +170,84 @@ public class Configuration implements ProxyConfig
     public Favicon getFaviconObject()
     {
         return favicon;
+    }
+
+    @Override
+    @Deprecated
+    public Map<String, ServerInfo> getServers()
+    {
+        return servers;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public Map<String, ServerInfo> getServersCopy()
+    {
+        return ImmutableMap.copyOf( servers );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo getServerInfo(String name)
+    {
+        return servers != null ? servers.get( name ) : null;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo addServer(ServerInfo server)
+    {
+        return servers != null ? servers.put( server.getName(), server ) : null;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public boolean addServers(Collection<ServerInfo> servers)
+    {
+        boolean changed = false;
+        for ( ServerInfo server : servers )
+        {
+            if ( server != this.servers.put( server.getName(), server ) )
+            {
+                changed = true;
+            }
+        }
+        return changed;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo removeServerNamed(String name)
+    {
+        return servers != null ? servers.remove( name ) : null;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public ServerInfo removeServer(ServerInfo server)
+    {
+        return servers != null ? servers.remove( server.getName() ) : null;
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public boolean removeServersNamed(Collection<String> names)
+    {
+        return servers != null && servers.keySet().removeAll( names );
+    }
+
+    @Override
+    @Synchronized("serversLock")
+    public boolean removeServers(Collection<ServerInfo> servers)
+    {
+        boolean changed = false;
+        for ( ServerInfo server : servers )
+        {
+            if ( this.servers.remove( server.getName() ) != null )
+            {
+                changed = true;
+            }
+        }
+        return changed;
     }
 }

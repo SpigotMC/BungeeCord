@@ -187,7 +187,7 @@ public class CommandSend extends Command implements TabExecutor
         } else
         {
             String search = args[1].toLowerCase( Locale.ROOT );
-            for ( String server : ProxyServer.getInstance().getServers().keySet() )
+            for ( String server : ProxyServer.getInstance().getServersCopy().keySet() )
             {
                 if ( server.toLowerCase( Locale.ROOT ).startsWith( search ) )
                 {

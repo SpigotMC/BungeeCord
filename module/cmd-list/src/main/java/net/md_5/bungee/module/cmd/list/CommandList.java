@@ -34,7 +34,7 @@ public class CommandList extends Command implements TabExecutor
         boolean hideEmptyServers = ( args.length == 0 ) || !args[0].equalsIgnoreCase( "all" );
         boolean moduleLoaded = ProxyServer.getInstance().getPluginManager().getPlugin( "cmd_server" ) != null;
 
-        for ( ServerInfo server : ProxyServer.getInstance().getServers().values() )
+        for ( ServerInfo server : ProxyServer.getInstance().getServersCopy().values() )
         {
             if ( !server.canAccess( sender ) )
             {

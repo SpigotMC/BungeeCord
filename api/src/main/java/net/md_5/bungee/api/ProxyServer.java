@@ -97,8 +97,21 @@ public abstract class ProxyServer
      * return a fresh map each time.
      *
      * @return all registered remote server destinations
+     * @deprecated The returned map is part of the proxy's internal state,
+     *             and may be modified concurrently by the proxy.
+     *             The safe alternative is {@link #getServersCopy()}.
      */
+    @Deprecated
     public abstract Map<String, ServerInfo> getServers();
+
+    /**
+     * Return all servers registered to this proxy, keyed by name. The returned map
+     * is an immutable snapshot of the actual server collection. It cannot be modified,
+     * and it will not change.
+     *
+     * @return all registered remote server destinations
+     */
+    public abstract Map<String, ServerInfo> getServersCopy();
 
     /**
      * Gets the server info of a server.
