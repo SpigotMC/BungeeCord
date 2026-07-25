@@ -45,7 +45,7 @@
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil-core</artifactId>
-            <version>8.5.18</version>
+            <version>8.5.19</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
