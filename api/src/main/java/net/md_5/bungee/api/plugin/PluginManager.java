@@ -360,6 +360,10 @@ public final class PluginManager
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 
                 plugins.put( plugin.getName(), clazz );
+                for ( String providedName : plugin.getProvides() )
+                {
+                    plugins.put( providedName, clazz );
+                }
                 clazz.onLoad();
                 ProxyServer.getInstance().getLogger().log( Level.INFO, "Loaded plugin {0} version {1} by {2}", new Object[]
                 {
