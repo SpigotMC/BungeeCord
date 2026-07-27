@@ -98,6 +98,16 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
+        // We move the client to a new protocol before it acknowledges the switch, so we may still decode packets in a
+        // protocol we have already left - those can neither be answered nor forwarded. Packets driving the transition
+        // itself are exempt, they are by definition still sent in the previous protocol.
+        // vanilla also guards incoming connection in a similar way
+        if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 && packet.protocol != con.getCh().getEncodeProtocol() && ( packet.packet == null || packet.packet.nextProtocol() == null ) )
+        {
+            // not a protocol transition ack packet, drop it.
+            return false;
+        }
+
         return con.getServer() != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
     }
 
