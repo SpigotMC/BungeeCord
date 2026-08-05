@@ -61,7 +61,7 @@ public final class PluginManager
     private final LibraryLoader libraryLoader;
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
-    private Map<String, String> providedMap = new HashMap<>();
+    private Map<String, String> providedNameMap = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
@@ -258,7 +258,7 @@ public final class PluginManager
      */
     public Plugin getPlugin(String name)
     {
-        return plugins.get( providedMap.getOrDefault( name, name ) );
+        return plugins.get( providedNameMap.getOrDefault( name, name ) );
     }
 
     public void loadPlugins()
@@ -312,7 +312,7 @@ public final class PluginManager
         // try to load dependencies first
         for ( String dependName : dependencies )
         {
-            PluginDescription depend = toLoad.get( providedMap.getOrDefault( dependName, dependName ) );
+            PluginDescription depend = toLoad.get( providedNameMap.getOrDefault( dependName, dependName ) );
             Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend.getName() ) : Boolean.FALSE;
 
             if ( dependStatus == null )
@@ -413,7 +413,7 @@ public final class PluginManager
                         toLoad.put( desc.getName(), desc );
                         for ( String providedName : desc.getProvides() )
                         {
-                            providedMap.put( providedName, desc.getName() );
+                            providedNameMap.put( providedName, desc.getName() );
                         }
                     }
                 } catch ( Exception ex )
