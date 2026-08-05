@@ -55,7 +55,7 @@ public class PluginDescription
      */
     private List<String> libraries = new LinkedList<>();
     /**
-     * Optional provided names.
+     * Optional provided names that act as alternative names for the plugin.
      */
     private List<String> provides = new LinkedList<>();
 }
