@@ -8,6 +8,7 @@ import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
@@ -33,7 +34,9 @@ import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.CustomClickAction;
+import net.md_5.bungee.protocol.packet.FinishConfiguration;
 import net.md_5.bungee.protocol.packet.KeepAlive;
+import net.md_5.bungee.protocol.packet.KnownPacks;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.PluginMessage;
@@ -309,7 +312,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception
     {
-        con.getServer().setFirstLogin( true );
+        con.getServer().getConfigurationStateTracker().setFirstLogin( true );
         configureServer();
     }
 
@@ -321,25 +324,9 @@ public class UpstreamBridge extends PacketHandler
 
     private void configureServer()
     {
-        ChannelWrapper ch = con.getServer().getCh();
-        if ( ch.getDecodeProtocol() == Protocol.LOGIN )
+        if ( con.getServer().getCh().getDecodeProtocol() == Protocol.LOGIN )
         {
-            ch.setDecodeProtocol( Protocol.CONFIGURATION );
-            ch.write( new LoginAcknowledged() );
-            ch.setEncodeProtocol( Protocol.CONFIGURATION );
-
-            // send the registered plugin channel as soon as the server is in config state
-            ch.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
-            if ( con.getSettings() != null )
-            {
-                ch.write( con.getSettings() );
-            }
-            if ( con.getPendingConnection().getBrandMessage() != null )
-            {
-                ch.write( con.getPendingConnection().getBrandMessage() );
-            }
-            con.getServer().sendQueuedPackets();
-
+            con.getServer().completeLogin( con );
             throw CancelSendSignal.INSTANCE;
         }
     }
@@ -364,6 +351,35 @@ public class UpstreamBridge extends PacketHandler
         {
             throw CancelSendSignal.INSTANCE;
         }
+    }
+
+    @Override
+    public void handle(KnownPacks knownPacks) throws Exception
+    {
+        ServerConnection.ConfigurationStateTracker tracker = con.getServer().getConfigurationStateTracker();
+        if ( !tracker.isAwaitingKnownPacks() )
+        {
+            // we need to skip here as the client responses to a known packs packet of an old server
+            throw CancelSendSignal.INSTANCE;
+        }
+        tracker.decrementAwaitingKnownPacks();
+    }
+
+    @Override
+    public void handle(FinishConfiguration finishConfiguration) throws Exception
+    {
+        ServerConnection.ConfigurationStateTracker tracker = con.getServer().getConfigurationStateTracker();
+        if ( !tracker.isAwaitingFinish() )
+        {
+            // we need to skip here as the client responses to a finish packs packet of an old server
+            throw CancelSendSignal.INSTANCE;
+        }
+        tracker.setAwaitingFinish( false );
+
+        // we received FinishConfiguration so we can notify the server connector
+        CompletableFuture<Void> future = con.getPipelineReconfigurationFuture();
+        con.setPipelineReconfigurationFuture( null );
+        future.complete( null );
     }
 
     @Override
