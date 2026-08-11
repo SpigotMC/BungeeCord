@@ -23,10 +23,7 @@ public class TextSerializer implements JsonSerializer<Text>, JsonDeserializer<Te
             return new Text( element.getAsJsonPrimitive().getAsString() );
         } else
         {
-            return new Text( new BaseComponent[]
-            {
-                context.deserialize( element, BaseComponent.class )
-            } );
+            return new Text( context.<BaseComponent>deserialize( element, BaseComponent.class ) );
         }
     }
 
