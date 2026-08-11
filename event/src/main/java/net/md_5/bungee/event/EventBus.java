@@ -34,7 +34,7 @@ public class EventBus
         this.logger = ( logger == null ) ? Logger.getLogger( Logger.GLOBAL_LOGGER_NAME ) : logger;
     }
 
-    public void post(Object event)
+    public <T extends EventBusEvent> void post(T event)
     {
         EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
 
@@ -42,31 +42,53 @@ public class EventBus
         {
             for ( EventHandlerMethod method : handlers )
             {
-                long start = System.nanoTime();
-
-                try
-                {
-                    method.invoke( event );
-                } catch ( IllegalAccessException ex )
-                {
-                    throw new Error( "Method became inaccessible: " + event, ex );
-                } catch ( IllegalArgumentException ex )
-                {
-                    throw new Error( "Method rejected target/argument: " + event, ex );
-                } catch ( InvocationTargetException ex )
-                {
-                    logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
-                }
-
-                long elapsed = System.nanoTime() - start;
-                if ( elapsed > 50000000 )
-                {
-                    logger.log( Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
-                    {
-                        method.getListener().getClass().getName(), elapsed / 1000000, event
-                    } );
-                }
+                executeEventHandler( event, method );
             }
+        }
+    }
+
+    public <T extends AsyncEventBusEvent> void postAsync(T event)
+    {
+        EventHandlerMethod[] handlers = byEventBaked.get( event.getClass() );
+
+        // Complete right now if no handlers registered
+        if ( handlers == null || handlers.length == 0 )
+        {
+            event.onComplete();
+            return;
+        }
+
+        AsyncEventContext<T> asyncEventContext = new AsyncEventContext<>( event, handlers, this );
+        event.setAsyncEventContext( asyncEventContext );
+
+        asyncEventContext.post();
+    }
+
+    public <T extends EventBusEvent> void executeEventHandler(T event, EventHandlerMethod method)
+    {
+        long start = System.nanoTime();
+
+        try
+        {
+            method.invoke( event );
+        } catch ( IllegalAccessException ex )
+        {
+            throw new Error( "Method became inaccessible: " + event, ex );
+        } catch ( IllegalArgumentException ex )
+        {
+            throw new Error( "Method rejected target/argument: " + event, ex );
+        } catch ( InvocationTargetException ex )
+        {
+            logger.log( Level.WARNING, MessageFormat.format( "Error dispatching event {0} to listener {1}", event, method.getListener() ), ex.getCause() );
+        }
+
+        long elapsed = System.nanoTime() - start;
+        if ( elapsed > 50000000 )
+        {
+            logger.log( Level.WARNING, "Plugin listener {0} took {1}ms to process event {2}!", new Object[]
+                {
+                        method.getListener().getClass().getName(), elapsed / 1000000, event
+                } );
         }
     }
 

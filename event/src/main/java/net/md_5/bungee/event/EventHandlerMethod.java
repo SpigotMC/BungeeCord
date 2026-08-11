@@ -6,12 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public class EventHandlerMethod
 {
 
-    @Getter
     private final Object listener;
-    @Getter
     private final Method method;
 
     public void invoke(Object event) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException
