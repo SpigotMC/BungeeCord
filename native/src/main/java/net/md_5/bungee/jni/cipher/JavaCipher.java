@@ -3,6 +3,7 @@ package net.md_5.bungee.jni.cipher;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.concurrent.FastThreadLocal;
+import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -13,16 +14,15 @@ public class JavaCipher implements BungeeCipher
 {
 
     private final Cipher cipher;
-    private static final FastThreadLocal<byte[]> heapInLocal = new EmptyByteThreadLocal();
-    private static final FastThreadLocal<byte[]> heapOutLocal = new EmptyByteThreadLocal();
+    private static final FastThreadLocal<ByteBuffer> bufferOutLocal = new EmptyByteThreadLocal();
 
-    private static class EmptyByteThreadLocal extends FastThreadLocal<byte[]>
+    private static class EmptyByteThreadLocal extends FastThreadLocal<ByteBuffer>
     {
 
         @Override
-        protected byte[] initialValue()
+        protected ByteBuffer initialValue()
         {
-            return new byte[ 0 ];
+            return ByteBuffer.allocate( 0 );
         }
     }
 
@@ -48,46 +48,40 @@ public class JavaCipher implements BungeeCipher
     public void cipher(ByteBuf in, ByteBuf out) throws ShortBufferException
     {
         int readableBytes = in.readableBytes();
-        byte[] heapIn = bufToByte( in );
 
-        byte[] heapOut = heapOutLocal.get();
+        ByteBuffer bufferOut = bufferOutLocal.get();
         int outputSize = cipher.getOutputSize( readableBytes );
-        if ( heapOut.length < outputSize )
+        if ( bufferOut.capacity() < outputSize )
         {
-            heapOut = new byte[ outputSize ];
-            heapOutLocal.set( heapOut );
+            bufferOut = ByteBuffer.allocate( outputSize );
+            bufferOutLocal.set( bufferOut );
         }
-        out.writeBytes( heapOut, 0, cipher.update( heapIn, 0, readableBytes, heapOut ) );
+        bufferOut.clear();
+
+        ByteBuffer[] buffersIn = in.nioBuffers();
+        for ( ByteBuffer bufferIn : buffersIn )
+        {
+            cipher.update( bufferIn, bufferOut );
+        }
+        bufferOut.flip();
+
+        out.writeBytes( bufferOut );
     }
 
     @Override
     public ByteBuf cipher(ChannelHandlerContext ctx, ByteBuf in) throws ShortBufferException
     {
         int readableBytes = in.readableBytes();
-        byte[] heapIn = bufToByte( in );
-
         ByteBuf heapOut = ctx.alloc().heapBuffer( cipher.getOutputSize( readableBytes ) );
-        heapOut.writerIndex( cipher.update( heapIn, 0, readableBytes, heapOut.array(), heapOut.arrayOffset() ) );
 
+        cipher( in, heapOut );
         return heapOut;
     }
 
     @Override
     public void free()
     {
-    }
-
-    private byte[] bufToByte(ByteBuf in)
-    {
-        byte[] heapIn = heapInLocal.get();
-        int readableBytes = in.readableBytes();
-        if ( heapIn.length < readableBytes )
-        {
-            heapIn = new byte[ readableBytes ];
-            heapInLocal.set( heapIn );
-        }
-        in.readBytes( heapIn, 0, readableBytes );
-        return heapIn;
+        bufferOutLocal.get().clear();
     }
 
     @Override
