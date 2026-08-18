@@ -74,7 +74,7 @@ public class ServerPing
 
         public String getId()
         {
-            return uniqueId.toString().replace( "-", "" );
+            return Util.undashUUID( uniqueId );
         }
     }
 
