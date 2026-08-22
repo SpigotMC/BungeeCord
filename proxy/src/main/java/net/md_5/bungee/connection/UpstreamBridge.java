@@ -98,17 +98,18 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        // We move the client to a new protocol before it acknowledges the switch, so we may still decode packets in a
-        // protocol we have already left - those can neither be answered nor forwarded. Packets driving the transition
-        // itself are exempt, they are by definition still sent in the previous protocol.
-        // vanilla also guards incoming connection in a similar way
-        if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 && packet.protocol != con.getCh().getEncodeProtocol() && ( packet.packet == null || packet.packet.nextProtocol() == null ) )
+        ServerConnection server = con.getServer();
+        if ( server != null && server.isConnected() )
         {
-            // not a protocol transition ack packet, drop it.
-            return false;
+            Protocol serverEncode = server.getCh().getEncodeProtocol();
+            // #3527, #4010: May still have old packets from client in game state when switching server to configuration state - discard those
+            // packets which switch the protocol phase are exempt, they are what advances the server connection to the new phase
+            if ( packet.protocol != serverEncode && ( packet.packet == null || packet.packet.nextProtocol() == null ) )
+            {
+                return false;
+            }
         }
-
-        return con.getServer() != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
+        return server != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
     }
 
     @Override
@@ -117,15 +118,8 @@ public class UpstreamBridge extends PacketHandler
         ServerConnection server = con.getServer();
         if ( server != null && server.isConnected() )
         {
-            Protocol serverEncode = server.getCh().getEncodeProtocol();
-            // #3527: May still have old packets from client in game state when switching server to configuration state - discard those
-            if ( packet.protocol != serverEncode )
-            {
-                return;
-            }
-
             EntityMap rewrite = con.getEntityRewrite();
-            if ( rewrite != null && serverEncode == Protocol.GAME )
+            if ( rewrite != null && server.getCh().getEncodeProtocol() == Protocol.GAME )
             {
                 rewrite.rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion() );
             }
