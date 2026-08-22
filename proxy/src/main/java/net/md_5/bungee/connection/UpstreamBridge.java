@@ -98,7 +98,18 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return con.getServer() != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
+        ServerConnection server = con.getServer();
+        if ( server != null && server.isConnected() )
+        {
+            Protocol serverEncode = server.getCh().getEncodeProtocol();
+            // #3527, #4010: May still have old packets from client in game state when switching server to configuration state - discard those
+            // packets which switch the protocol phase are exempt, they are what advances the server connection to the new phase
+            if ( packet.protocol != serverEncode && ( packet.packet == null || packet.packet.nextProtocol() == null ) )
+            {
+                return false;
+            }
+        }
+        return server != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
     }
 
     @Override
@@ -107,15 +118,8 @@ public class UpstreamBridge extends PacketHandler
         ServerConnection server = con.getServer();
         if ( server != null && server.isConnected() )
         {
-            Protocol serverEncode = server.getCh().getEncodeProtocol();
-            // #3527: May still have old packets from client in game state when switching server to configuration state - discard those
-            if ( packet.protocol != serverEncode )
-            {
-                return;
-            }
-
             EntityMap rewrite = con.getEntityRewrite();
-            if ( rewrite != null && serverEncode == Protocol.GAME )
+            if ( rewrite != null && server.getCh().getEncodeProtocol() == Protocol.GAME )
             {
                 rewrite.rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion() );
             }
