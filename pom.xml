@@ -249,6 +249,8 @@
                                     <excludes>
                                         <!-- org.apache.maven:maven-resolver-transport-http is inconsistent -->
                                         <exclude>commons-codec:commons-codec</exclude>
+                                        <!-- From maven-resolver but we need the latest version -->
+                                        <exclude>org.ow2.asm:asm</exclude>
                                         <!-- We use SLF4J 2 (#3834) -->
                                         <exclude>org.slf4j:slf4j-api</exclude>
                                     </excludes>
