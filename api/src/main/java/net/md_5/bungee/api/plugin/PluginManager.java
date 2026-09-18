@@ -61,6 +61,7 @@ public final class PluginManager
     private final LibraryLoader libraryLoader;
     private final Map<String, Command> commandMap = new HashMap<>();
     private Map<String, PluginDescription> toLoad = new HashMap<>();
+    private Map<String, String> providedNameMap = new HashMap<>();
     private final Multimap<Plugin, Command> commandsByPlugin = ArrayListMultimap.create();
     private final Multimap<Plugin, Listener> listenersByPlugin = ArrayListMultimap.create();
 
@@ -257,12 +258,12 @@ public final class PluginManager
      */
     public Plugin getPlugin(String name)
     {
-        return plugins.get( name );
+        return plugins.get( providedNameMap.getOrDefault( name, name ) );
     }
 
     public void loadPlugins()
     {
-        Map<PluginDescription, Boolean> pluginStatuses = new HashMap<>();
+        Map<String, Boolean> pluginStatuses = new HashMap<>();
         for ( Map.Entry<String, PluginDescription> entry : toLoad.entrySet() )
         {
             PluginDescription plugin = entry.getValue();
@@ -293,11 +294,11 @@ public final class PluginManager
         }
     }
 
-    private boolean enablePlugin(Map<PluginDescription, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin)
+    private boolean enablePlugin(Map<String, Boolean> pluginStatuses, Stack<PluginDescription> dependStack, PluginDescription plugin)
     {
-        if ( pluginStatuses.containsKey( plugin ) )
+        if ( pluginStatuses.containsKey( plugin.getName() ) )
         {
-            return pluginStatuses.get( plugin );
+            return pluginStatuses.get( plugin.getName() );
         }
 
         // combine all dependencies for 'for loop'
@@ -311,8 +312,8 @@ public final class PluginManager
         // try to load dependencies first
         for ( String dependName : dependencies )
         {
-            PluginDescription depend = toLoad.get( dependName );
-            Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend ) : Boolean.FALSE;
+            PluginDescription depend = toLoad.get( providedNameMap.getOrDefault( dependName, dependName ) );
+            Boolean dependStatus = ( depend != null ) ? pluginStatuses.get( depend.getName() ) : Boolean.FALSE;
 
             if ( dependStatus == null )
             {
@@ -371,7 +372,11 @@ public final class PluginManager
             }
         }
 
-        pluginStatuses.put( plugin, status );
+        pluginStatuses.put( plugin.getName(), status );
+        for ( String providedName : plugin.getProvides() )
+        {
+            pluginStatuses.put( providedName, status );
+        }
         return status;
     }
 
@@ -406,6 +411,10 @@ public final class PluginManager
 
                         desc.setFile( file );
                         toLoad.put( desc.getName(), desc );
+                        for ( String providedName : desc.getProvides() )
+                        {
+                            providedNameMap.put( providedName, desc.getName() );
+                        }
                     }
                 } catch ( Exception ex )
                 {
