@@ -39,7 +39,11 @@ public class ServerConnectRequest
         /**
          * Connection failed, error can be accessed from callback method handle.
          */
-        FAIL
+        FAIL,
+        /**
+         * User has no access to this server.
+         */
+        UNAUTHORISED
     }
 
     /**
@@ -67,6 +71,12 @@ public class ServerConnectRequest
      */
     @Setter
     private boolean retry;
+    /**
+     * Disabled by default. Set to true if the the permissions defined in the config
+     * to restrict servers to certain players should be respected for this request.
+     */
+    @Setter
+    private boolean requireAccess;
 
     /**
      * Class that sets default properties/adds methods to the lombok builder
@@ -75,6 +85,7 @@ public class ServerConnectRequest
     public static class Builder
     {
 
+        private boolean requireAccess = ProxyServer.getInstance().getConfig().isRequireAccess();
         private int connectTimeout = ProxyServer.getInstance().getConfig().getServerConnectTimeout();
     }
 }
