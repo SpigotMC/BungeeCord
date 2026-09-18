@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * This component processes a target selector into a pre-formatted set of
@@ -76,10 +77,10 @@ public final class SelectorComponent extends BaseComponent
     }
 
     @Override
-    protected void toLegacyText(StringVisitor builder)
+    protected ComponentStyle toLegacyText(StringVisitor builder, ChatColor baseColor, ComponentStyle currentLegacy)
     {
-        addFormat( builder );
+        currentLegacy = addFormat( builder, baseColor, currentLegacy );
         builder.append( this.selector );
-        super.toLegacyText( builder );
+        return super.toLegacyText( builder, baseColor, currentLegacy );
     }
 }

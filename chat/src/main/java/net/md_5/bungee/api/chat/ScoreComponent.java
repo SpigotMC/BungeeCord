@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import net.md_5.bungee.api.ChatColor;
 
 /**
  * This component displays the score based on a player score on the scoreboard.
@@ -92,10 +93,10 @@ public final class ScoreComponent extends BaseComponent
     }
 
     @Override
-    protected void toLegacyText(StringVisitor builder)
+    protected ComponentStyle toLegacyText(StringVisitor builder, ChatColor baseColor, ComponentStyle currentLegacy)
     {
-        addFormat( builder );
+        currentLegacy = addFormat( builder, baseColor, currentLegacy );
         builder.append( this.value );
-        super.toLegacyText( builder );
+        return super.toLegacyText( builder, baseColor, currentLegacy );
     }
 }
