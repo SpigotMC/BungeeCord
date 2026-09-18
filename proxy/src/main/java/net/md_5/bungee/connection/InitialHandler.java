@@ -851,6 +851,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             }
         } else if ( input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) )
         {
+            Preconditions.checkState( brandMessage == null || brandMessage.equals( input ), "Already received brand message" );
             brandMessage = input;
             clientBrand = DefinedPacket.readString( Unpooled.wrappedBuffer( input.getData() ) );
         }
