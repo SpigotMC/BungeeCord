@@ -168,72 +168,68 @@ public class HandlerBoss extends ChannelInboundHandlerAdapter
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception
     {
-        if ( ctx.channel().isActive() )
+        boolean logExceptions = !( handler instanceof PingHandler ) && !healthCheck;
+        if ( logExceptions )
         {
-            boolean logExceptions = !( handler instanceof PingHandler ) && !healthCheck;
-
-            if ( logExceptions )
+            if ( cause instanceof ReadTimeoutException )
             {
-                if ( cause instanceof ReadTimeoutException )
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
+            } else if ( cause instanceof WriteTimeoutException )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - write timed out", handler );
+            } else if ( cause instanceof DecoderException )
+            {
+                if ( cause instanceof CorruptedFrameException )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - read timed out", handler );
-                } else if ( cause instanceof WriteTimeoutException )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - write timed out", handler );
-                } else if ( cause instanceof DecoderException )
-                {
-                    if ( cause instanceof CorruptedFrameException )
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - corrupted frame: {1}", new Object[]
                     {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - corrupted frame: {1}", new Object[]
-                        {
-                            handler, cause.getMessage()
-                        } );
-                    } else if ( cause.getCause() instanceof BadPacketException )
-                    {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet, are mods in use!? {1}", new Object[]
-                        {
-                            handler, cause.getCause().getMessage()
-                        } );
-                    } else if ( cause.getCause() instanceof OverflowPacketException )
-                    {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
-                        {
-                            handler, cause.getCause().getMessage()
-                        } );
-                    } else
-                    {
-                        ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - could not decode packet!", cause );
-                    }
-                } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
-                {
-                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
-                    {
-                        handler, cause.getClass().getSimpleName(), cause.getMessage()
+                        handler, cause.getMessage()
                     } );
-                } else if ( cause instanceof QuietException )
+                } else if ( cause.getCause() instanceof BadPacketException )
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - bad packet, are mods in use!? {1}", new Object[]
                     {
-                        handler, cause
+                        handler, cause.getCause().getMessage()
+                    } );
+                } else if ( cause.getCause() instanceof OverflowPacketException )
+                {
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - overflow in packet detected! {1}", new Object[]
+                    {
+                        handler, cause.getCause().getMessage()
                     } );
                 } else
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
+                    ProxyServer.getInstance().getLogger().log( Level.WARNING, handler + " - could not decode packet!", cause );
                 }
-            }
-
-            if ( handler != null )
+            } else if ( cause instanceof IOException || ( cause instanceof IllegalStateException && handler instanceof InitialHandler ) )
             {
-                try
+                ProxyServer.getInstance().getLogger().log( Level.WARNING, "{0} - {1}: {2}", new Object[]
                 {
-                    handler.exception( cause );
-                } catch ( Exception ex )
+                    handler, cause.getClass().getSimpleName(), cause.getMessage()
+                } );
+            } else if ( cause instanceof QuietException )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, "{0} - encountered exception: {1}", new Object[]
                 {
-                    ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
-                }
+                    handler, cause
+                } );
+            } else
+            {
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - encountered exception", cause );
             }
-
-            ctx.close();
         }
+
+        if ( handler != null )
+        {
+            try
+            {
+                handler.exception( cause );
+            } catch ( Exception ex )
+            {
+                ProxyServer.getInstance().getLogger().log( Level.SEVERE, handler + " - exception processing exception", ex );
+            }
+        }
+
+        channel.close();
     }
 }
