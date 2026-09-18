@@ -311,6 +311,6 @@ public final class TextComponent extends BaseComponent
     @Override
     public String toString()
     {
-        return "TextComponent{text=" + text + ", " + super.toString() + '}';
+        return componentToString( "text", text );
     }
 }

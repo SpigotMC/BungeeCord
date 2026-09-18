@@ -8,12 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import net.md_5.bungee.chat.TranslationRegistry;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class TranslatableComponent extends BaseComponent
@@ -227,5 +225,11 @@ public final class TranslatableComponent extends BaseComponent
             }
             builder.append( trans.substring( position, trans.length() ) );
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return componentToString( "translate", translate, "with", with, "fallback", fallback );
     }
 }
