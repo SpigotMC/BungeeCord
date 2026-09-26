@@ -4,8 +4,12 @@ updates:
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     open-pull-requests-limit: 50
+    groups:
+      maven:
+        patterns:
+          - "*"
     ignore:
         # Synchronised with Minecraft
       - dependency-name: "com.google.code.gson:gson"
@@ -21,5 +25,5 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     open-pull-requests-limit: 50
