@@ -22,8 +22,8 @@ public class Login extends DefinedPacket
 
     private int entityId;
     private boolean hardcore;
-    private short gameMode;
-    private short previousGameMode;
+    private int gameMode;
+    private int previousGameMode;
     private Set<String> worldNames;
     private Tag dimensions;
     private Object dimension;
@@ -144,8 +144,15 @@ public class Login extends DefinedPacket
             }
             worldName = readString( buf );
             seed = buf.readLong();
-            gameMode = buf.readUnsignedByte();
-            previousGameMode = buf.readByte();
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
+            {
+                gameMode = readVarInt( buf );
+                previousGameMode = readVarInt( buf );
+            } else
+            {
+                gameMode = buf.readUnsignedByte();
+                previousGameMode = buf.readByte();
+            }
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
@@ -278,8 +285,15 @@ public class Login extends DefinedPacket
             }
             writeString( worldName, buf );
             buf.writeLong( seed );
-            buf.writeByte( gameMode );
-            buf.writeByte( previousGameMode );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
+            {
+                writeVarInt( gameMode, buf );
+                writeVarInt( previousGameMode, buf );
+            } else
+            {
+                buf.writeByte( gameMode );
+                buf.writeByte( previousGameMode );
+            }
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
