@@ -671,11 +671,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginPayloadResponse response) throws Exception
     {
-        CompletableFuture<byte[]> future;
-        synchronized ( requestedLoginPayloads )
-        {
-            future = requestedLoginPayloads.remove( response.getId() );
-        }
+        CompletableFuture<byte[]> future = requestedLoginPayloads.remove( response.getId() );
         Preconditions.checkState( future != null, "Unexpected custom LoginPayloadResponse" );
         future.complete( response.getData() );
 
@@ -694,32 +690,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(CookieResponse cookieResponse)
     {
         // be careful, backend server could also make the client send a cookie response
-        CookieFuture future;
-        synchronized ( requestedCookies )
+        CookieFuture future = requestedCookies.peek();
+        if ( future != null && future.cookie.equals( cookieResponse.getCookie() ) )
         {
-            future = requestedCookies.peek();
-            if ( future != null )
-            {
-                if ( future.cookie.equals( cookieResponse.getCookie() ) )
-                {
-                    Preconditions.checkState( future == requestedCookies.poll(), "requestedCookies queue mismatch" );
-                } else
-                {
-                    future = null; // leave for handling by backend
-                }
-            }
-        }
-
-        if ( future != null )
-        {
+            Preconditions.checkState( future == requestedCookies.poll(), "requestedCookies queue mismatch" );
             future.getFuture().complete( cookieResponse.getData() );
-
             throw CancelSendSignal.INSTANCE;
         }
 
         // if there is no userCon we can't have a connection to a backend server that could have requested this cookie
         // which means that this cookie is invalid as the proxy also has not requested it
         Preconditions.checkState( userCon != null, "not requested cookie received" );
+        // leave for handling by backend
     }
 
     @Override
@@ -869,11 +851,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         CompletableFuture<byte[]> future = new CompletableFuture<>();
-        synchronized ( requestedCookies )
+
+        String identifier = cookie;
+        ch.scheduleIfNecessary( () ->
         {
-            requestedCookies.add( new CookieFuture( cookie, future ) );
-        }
-        unsafe.sendPacket( new CookieRequest( cookie ) );
+            requestedCookies.add( new CookieFuture( identifier, future ) );
+            unsafe.sendPacket( new CookieRequest( identifier ) );
+        } );
 
         return future;
     }
@@ -885,14 +869,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( ch.getEncodeProtocol() == Protocol.LOGIN, "LoginPayloads are only supported in the login phase" );
 
         CompletableFuture<byte[]> future = new CompletableFuture<>();
-        final int id;
-        synchronized ( requestedLoginPayloads )
+        ch.scheduleIfNecessary( () ->
         {
-            // thread safe loginPayloadId
-            id = loginPayloadId++;
+            final int id = loginPayloadId++;
             requestedLoginPayloads.put( id, future );
-        }
-        unsafe.sendPacket( new LoginPayloadRequest( id, channel, data ) );
+            unsafe.sendPacket( new LoginPayloadRequest( id, channel, data ) );
+        } );
         return future;
     }
 
