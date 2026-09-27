@@ -13,17 +13,34 @@ import net.md_5.bungee.api.chat.ItemTag;
 
 public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<Item>
 {
+    private static final String ID_KEY = "id";
+    private static final String COMPONENTS_KEY = "components";
+    private static final String TAG_KEY = "tag";
+    // Count must be serialized as "count" for >= 1.20.5
+    // See: https://minecraft.wiki/w/Data_component_format#Usage
+    private static final String COUNT_KEY = "count";
+    // Count Must be serialized as "Count" for < 1.20.5
+    // See: https://minecraft.wiki/w/Item_format/Before_1.20.5#NBT_structure
+    private static final String LEGACY_COUNT_KEY = "Count";
 
     @Override
     public Item deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException
     {
         JsonObject value = element.getAsJsonObject();
 
+        // Default to -1 since no count is serialized for legacy
+        // but count will ALWAYS be serialized for modern
         int count = -1;
-        if ( value.has( "Count" ) )
+        JsonPrimitive countObj = null;
+        if ( value.has( COUNT_KEY ) )
         {
-            JsonPrimitive countObj = value.get( "Count" ).getAsJsonPrimitive();
-
+            countObj = value.get( COUNT_KEY ).getAsJsonPrimitive();
+        } else if ( value.has( LEGACY_COUNT_KEY ) )
+        {
+            countObj = value.get( LEGACY_COUNT_KEY ).getAsJsonPrimitive();
+        }
+        if ( countObj != null )
+        {
             if ( countObj.isNumber() )
             {
                 count = countObj.getAsInt();
@@ -47,24 +64,36 @@ public class ItemSerializer implements JsonSerializer<Item>, JsonDeserializer<It
         }
 
         return new Item(
-                ( value.has( "id" ) ) ? value.get( "id" ).getAsString() : null,
+                ( value.has( ID_KEY ) ) ? value.get( ID_KEY ).getAsString() : null,
                 count,
-                ( value.has( "tag" ) ) ? context.deserialize( value.get( "tag" ), ItemTag.class ) : null
+                ( value.has( COMPONENTS_KEY ) ) ? value.get( COMPONENTS_KEY ) : null,
+                ( value.has( TAG_KEY ) ) ? context.deserialize( value.get( TAG_KEY ), ItemTag.class ) : null
         );
     }
 
     @Override
     public JsonElement serialize(Item content, Type type, JsonSerializationContext context)
     {
+        boolean isLegacy = content.getTag() != null && content.getComponents() == null;
+
         JsonObject object = new JsonObject();
-        object.addProperty( "id", ( content.getId() == null ) ? "minecraft:air" : content.getId() );
+        // Default to air for legacy, stone for modern (air is no longer allowed)
+        String idDefault = isLegacy ? "minecraft:air" : "minecraft:stone";
+        object.addProperty( ID_KEY, ( content.getId() == null ) ? idDefault : content.getId() );
+
         if ( content.getCount() != -1 )
         {
-            object.addProperty( "Count", content.getCount() );
+            object.addProperty( isLegacy ? LEGACY_COUNT_KEY : COUNT_KEY, content.getCount() );
         }
+        // Item Components system
+        if ( content.getComponents() != null )
+        {
+            object.add( COMPONENTS_KEY, content.getComponents() );
+        }
+        // Legacy NBT Tag system
         if ( content.getTag() != null )
         {
-            object.add( "tag", context.serialize( content.getTag() ) );
+            object.add( TAG_KEY, context.serialize( content.getTag() ) );
         }
         return object;
     }
