@@ -155,6 +155,9 @@ public final class UserConnection implements ProxiedPlayer
     @Getter
     private VersionedComponentSerializer chatSerializer;
     private Locale locale;
+    @Getter
+    @Setter
+    private BungeeServerInfo lastConfigCancelledTarget;
     /*========================================================================*/
     @Getter
     @Setter
@@ -389,6 +392,17 @@ public final class UserConnection implements ProxiedPlayer
             }
 
             sendMessage( bungee.getTranslation( "already_connecting" ) );
+            return;
+        }
+
+
+        if ( getCh().getEncodeProtocol() == Protocol.CONFIGURATION )
+        {
+            lastConfigCancelledTarget = target;
+            if ( callback != null )
+            {
+                callback.done( ServerConnectRequest.Result.FAIL, new IllegalStateException( "Can't connect to another server while player is in config phase" ) );
+            }
             return;
         }
 
