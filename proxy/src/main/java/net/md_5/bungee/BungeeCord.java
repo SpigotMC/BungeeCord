@@ -52,6 +52,9 @@ import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ReconnectHandler;
 import net.md_5.bungee.api.Title;
+import net.md_5.bungee.api.boss.BarColor;
+import net.md_5.bungee.api.boss.BarStyle;
+import net.md_5.bungee.api.boss.BossBar;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
@@ -60,6 +63,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.api.plugin.PluginManager;
+import net.md_5.bungee.bossbar.BungeeBossBar;
 import net.md_5.bungee.command.CommandBungee;
 import net.md_5.bungee.command.CommandEnd;
 import net.md_5.bungee.command.CommandIP;
@@ -803,6 +807,12 @@ public class BungeeCord extends ProxyServer
     public Title createTitle()
     {
         return new BungeeTitle();
+    }
+
+    @Override
+    public BossBar createBossBar(BaseComponent title, BarColor color, BarStyle division, float health)
+    {
+        return new BungeeBossBar( title, color, division, health );
     }
 
     @Override
