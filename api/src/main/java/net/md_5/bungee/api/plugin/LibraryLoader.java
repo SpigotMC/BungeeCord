@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.maven.repository.supplier.RepositorySystemSupplier;
+import org.apache.maven.repository.supplier.SessionBuilderSupplier;
 import org.eclipse.aether.RepositorySystem;
 import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
@@ -40,8 +41,8 @@ class LibraryLoader
     {
         this.logger = logger;
 
-        this.repository = new RepositorySystemSupplier().getRepositorySystem();
-        RepositorySystemSession.SessionBuilder sessionBuilder = this.repository.createSessionBuilder();
+        this.repository = new RepositorySystemSupplier().get();
+        RepositorySystemSession.SessionBuilder sessionBuilder = new SessionBuilderSupplier( repository ).get();
 
         sessionBuilder.setChecksumPolicy( RepositoryPolicy.CHECKSUM_POLICY_FAIL );
         sessionBuilder.withLocalRepositories( new LocalRepository( new File( "libraries" ).toPath() ) );
