@@ -9,15 +9,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
-import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.apache.maven.repository.supplier.RepositorySystemSupplier;
 import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
-import org.eclipse.aether.connector.basic.BasicRepositoryConnectorFactory;
 import org.eclipse.aether.graph.Dependency;
-import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.repository.RepositoryPolicy;
@@ -25,12 +23,9 @@ import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
-import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
-import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transfer.AbstractTransferListener;
 import org.eclipse.aether.transfer.TransferCancelledException;
 import org.eclipse.aether.transfer.TransferEvent;
-import org.eclipse.aether.transport.http.HttpTransporterFactory;
 
 class LibraryLoader
 {
@@ -38,23 +33,19 @@ class LibraryLoader
     private static final String REPOSITORY_PROPERTY = "net.md_5.bungee.api.plugin.centralURL";
     private final Logger logger;
     private final RepositorySystem repository;
-    private final DefaultRepositorySystemSession session;
+    private final RepositorySystemSession session;
     private final List<RemoteRepository> repositories;
 
     public LibraryLoader(Logger logger)
     {
         this.logger = logger;
 
-        DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
-        locator.addService( RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class );
-        locator.addService( TransporterFactory.class, HttpTransporterFactory.class );
+        this.repository = new RepositorySystemSupplier().getRepositorySystem();
+        RepositorySystemSession.SessionBuilder sessionBuilder = this.repository.createSessionBuilder();
 
-        this.repository = locator.getService( RepositorySystem.class );
-        this.session = MavenRepositorySystemUtils.newSession();
-
-        session.setChecksumPolicy( RepositoryPolicy.CHECKSUM_POLICY_FAIL );
-        session.setLocalRepositoryManager( repository.newLocalRepositoryManager( session, new LocalRepository( "libraries" ) ) );
-        session.setTransferListener( new AbstractTransferListener()
+        sessionBuilder.setChecksumPolicy( RepositoryPolicy.CHECKSUM_POLICY_FAIL );
+        sessionBuilder.withLocalRepositories( new LocalRepository( new File( "libraries" ).toPath() ) );
+        sessionBuilder.setTransferListener( new AbstractTransferListener()
         {
             @Override
             public void transferStarted(TransferEvent event) throws TransferCancelledException
@@ -66,8 +57,8 @@ class LibraryLoader
         // SPIGOT-7638: Add system properties,
         // since JdkVersionProfileActivator needs 'java.version' when a profile has the 'jdk' element
         // otherwise it will silently fail and not resolves the dependencies in the affected pom.
-        session.setSystemProperties( System.getProperties() );
-        session.setReadOnly();
+        sessionBuilder.setSystemProperties( System.getProperties() );
+        this.session = sessionBuilder.build();
 
         this.repositories = repository.newResolutionRepositories( session, Arrays.asList( new RemoteRepository.Builder( "central", "default", System.getProperty( REPOSITORY_PROPERTY, "https://repo.maven.apache.org/maven2" ) ).build() ) );
     }

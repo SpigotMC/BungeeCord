@@ -18,31 +18,11 @@
     <name>BungeeCord-Maven-Resolver</name>
     <description>Combines maven-resolver artifacts to manage dependency versions and avoid split packages.</description>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.apache.maven</groupId>
-                <artifactId>maven-resolver-provider</artifactId>
-                <version>3.9.16</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-resolver-provider</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-connector-basic</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.resolver</groupId>
-            <artifactId>maven-resolver-transport-http</artifactId>
+            <version>3.10.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
