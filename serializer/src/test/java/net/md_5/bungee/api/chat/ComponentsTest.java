@@ -719,6 +719,7 @@ public class ComponentsTest
         b.setColor( AQUA );
         a.addExtra( b );
         a.addExtra( b );
+        // test: may not throw an exception
         ComponentSerializer.toString( a );
     }
 
