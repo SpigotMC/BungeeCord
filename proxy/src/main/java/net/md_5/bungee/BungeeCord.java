@@ -67,7 +67,6 @@ import net.md_5.bungee.command.CommandPerms;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
-import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
@@ -244,13 +243,6 @@ public class BungeeCord extends ProxyServer
             } else
             {
                 logger.info( "Using standard Java JCE cipher." );
-            }
-            if ( CompressFactory.zlib.load() )
-            {
-                logger.info( "Using zlib based native compressor." );
-            } else
-            {
-                logger.info( "Using standard Java compressor." );
             }
         }
     }

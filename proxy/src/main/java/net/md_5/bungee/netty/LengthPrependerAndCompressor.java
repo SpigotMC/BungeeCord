@@ -3,11 +3,10 @@ package net.md_5.bungee.netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.zip.Deflater;
 import lombok.Setter;
-import net.md_5.bungee.compress.CompressFactory;
-import net.md_5.bungee.jni.zlib.BungeeZlib;
 import net.md_5.bungee.protocol.DefinedPacket;
 
 /**
@@ -31,6 +30,10 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
      * overwrites FLAG_COMPOSE if set
      */
     private static final byte FLAG_TWO_BUFFERS = 0x04;
+    /**
+     * minimum number of bytes compressed in a single compression iteration
+     */
+    private static final int COMPRESS_BUFFER_SIZE = 8192;
 
     public LengthPrependerAndCompressor(boolean compose, boolean twoBuffers)
     {
@@ -38,7 +41,7 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
         setTwoBuffers( twoBuffers );
     }
 
-    private BungeeZlib zlib;
+    private Deflater zlib;
     @Setter
     private int threshold = 256;
     private byte flags = FLAG_COMPOSE;
@@ -76,10 +79,10 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
                 }
             } else
             {
-                ByteBuf buf = ctx.alloc().directBuffer( BungeeZlib.OUTPUT_BUFFER_SIZE + MAX_SUPPORTED_VARINT_LENGTH_LEN + varintSize( oldBodyLen ) );
+                ByteBuf buf = ctx.alloc().directBuffer( COMPRESS_BUFFER_SIZE + MAX_SUPPORTED_VARINT_LENGTH_LEN + varintSize( oldBodyLen ) );
                 buf.writerIndex( MAX_SUPPORTED_VARINT_LENGTH_LEN ); // Reserve space for packet length varint
                 DefinedPacket.writeVarInt( oldBodyLen, buf ); // write uncompressed length
-                zlib.process( msg, buf ); // compress data to buf
+                process( msg, buf ); // compress data to buf
 
                 // write varint length of compressed directly infront of compressed data
                 // leaves potential unused bytes at buffer start
@@ -116,12 +119,69 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
         }
     }
 
+    private void process(ByteBuf in, ByteBuf out)
+    {
+        int buffersInIdx = 0;
+        ByteBuffer[] buffersIn = in.nioBuffers();
+
+        int buffersOutIdx = 0;
+        ByteBuffer[] buffersOut = null;
+
+        zlib.setInput( buffersIn[buffersInIdx] );
+
+        while ( !zlib.finished() )
+        {
+            if ( buffersInIdx == buffersIn.length - 1 )
+            {
+                zlib.finish();
+            }
+
+            if ( out.writableBytes() < COMPRESS_BUFFER_SIZE )
+            {
+                out.ensureWritable( COMPRESS_BUFFER_SIZE );
+                buffersOut = null;
+            }
+
+            if ( buffersOut == null )
+            {
+                buffersOutIdx = 0;
+                buffersOut = out.nioBuffers( out.writerIndex(), out.writableBytes() );
+            }
+
+            int totalIn = zlib.getTotalIn();
+            ByteBuffer bufferOut = buffersOut[buffersOutIdx];
+            int written = zlib.deflate( bufferOut );
+            int read = zlib.getTotalIn() - totalIn;
+
+            in.readerIndex( in.readerIndex() + read );
+            out.writerIndex( out.writerIndex() + written );
+
+            if ( !bufferOut.hasRemaining() )
+            {
+                buffersOutIdx++;
+            }
+
+            if ( written == 0 )
+            {
+                if ( zlib.needsInput() )
+                {
+                    zlib.setInput( buffersIn[++buffersInIdx] );
+                } else
+                {
+                    throw new IllegalStateException( "No bytes written but no input required" );
+                }
+            }
+        }
+
+        zlib.reset();
+    }
+
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception
     {
         if ( zlib != null )
         {
-            zlib.free();
+            zlib.end();
             zlib = null;
         }
     }
@@ -146,19 +206,17 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
     {
         if ( compress )
         {
-            BungeeZlib zlib = this.zlib;
             if ( zlib == null )
             {
-                this.zlib = zlib = CompressFactory.zlib.newInstance();
+                zlib = new Deflater();
             }
-            zlib.init( true, Deflater.DEFAULT_COMPRESSION );
             flags |= FLAG_COMPRESS;
         } else
         {
             flags &= ~FLAG_COMPRESS;
             if ( zlib != null )
             {
-                zlib.free();
+                zlib.end();
                 zlib = null;
             }
         }
