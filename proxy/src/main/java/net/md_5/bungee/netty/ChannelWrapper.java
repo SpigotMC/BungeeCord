@@ -13,6 +13,7 @@ import lombok.Setter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.compress.PacketDecompressor;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
+import net.md_5.bungee.protocol.ClearableByteToMessageDecoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.MinecraftDecoder;
 import net.md_5.bungee.protocol.MinecraftEncoder;
@@ -130,6 +131,8 @@ public class ChannelWrapper
     {
         if ( !closed )
         {
+            ch.pipeline().fireUserEventTriggered( ClearableByteToMessageDecoder.CLEAR_PIPELINE );
+
             if ( !closing )
             {
                 ch.config().setAutoRead( false );
