@@ -63,7 +63,7 @@ public class ClickEventSerializer
     {
         JsonObject clickEvent = new JsonObject();
         String actionName = src.getAction().toString().toLowerCase( Locale.ROOT );
-        clickEvent.addProperty( ( type == ClickType.DIALOG ) ? "type" : "action", actionName.toLowerCase( Locale.ROOT ) );
+        clickEvent.addProperty( ( type == ClickType.DIALOG ) ? "type" : "action", actionName );
         switch ( type )
         {
             case NEW:
