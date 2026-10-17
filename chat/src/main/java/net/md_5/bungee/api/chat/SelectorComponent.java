@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 /**
  * This component processes a target selector into a pre-formatted set of
@@ -21,7 +20,6 @@ import lombok.ToString;
  */
 @Getter
 @Setter
-@ToString
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class SelectorComponent extends BaseComponent
@@ -82,4 +80,11 @@ public final class SelectorComponent extends BaseComponent
         builder.append( this.selector );
         super.toLegacyText( builder );
     }
+
+    @Override
+    public String toString()
+    {
+        return componentToString( "selector", selector, "separator", separator );
+    }
+
 }
