@@ -2,6 +2,7 @@ package net.md_5.bungee.api;
 
 import com.google.common.base.Preconditions;
 import java.awt.Color;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -126,6 +127,12 @@ public final class ChatColor
      */
     private static int count = 0;
     /**
+     * An array of only the colors
+     */
+    private static final ChatColor[] DEFAULT_COLORS = Arrays.stream( values() )
+            .filter( c -> c.getColor() != null )
+            .toArray( ChatColor[]::new );
+    /**
      * This colour's colour char prefixed by the {@link #COLOR_CHAR}.
      */
     private final String toString;
@@ -223,6 +230,41 @@ public final class ChatColor
             }
         }
         return new String( b );
+    }
+
+    /**
+     * Finds the closest default ChatColor to the given target color using squared
+     * Euclidean distance in sRGB space.
+     *
+     * @param target the color to match
+     * @return the closest ChatColor
+     */
+    public static ChatColor closestDefaultColor(Color target)
+    {
+        Preconditions.checkNotNull( target, "target cannot be null" );
+        int targetRed = target.getRed();
+        int targetGreen = target.getGreen();
+        int targetBlue = target.getBlue();
+
+        ChatColor result = null;
+        int smallestDistance = Integer.MAX_VALUE;
+
+        for ( ChatColor value : DEFAULT_COLORS )
+        {
+            Color color = value.getColor();
+
+            int redDiff = color.getRed() - targetRed;
+            int greenDiff = color.getGreen() - targetGreen;
+            int blueDiff = color.getBlue() - targetBlue;
+            int distance = redDiff * redDiff + greenDiff * greenDiff + blueDiff * blueDiff;
+
+            if ( distance < smallestDistance )
+            {
+                smallestDistance = distance;
+                result = value;
+            }
+        }
+        return Preconditions.checkNotNull( result, "Could not find a match for " + target );
     }
 
     /**
