@@ -127,53 +127,57 @@ public class LengthPrependerAndCompressor extends MessageToMessageEncoder<ByteBu
         int buffersOutIdx = 0;
         ByteBuffer[] buffersOut = null;
 
-        zlib.setInput( buffersIn[buffersInIdx] );
-
-        while ( !zlib.finished() )
+        try
         {
-            if ( buffersInIdx == buffersIn.length - 1 )
+            zlib.setInput( buffersIn[buffersInIdx] );
+
+            while ( !zlib.finished() )
             {
-                zlib.finish();
-            }
-
-            if ( out.writableBytes() < COMPRESS_BUFFER_SIZE )
-            {
-                out.ensureWritable( COMPRESS_BUFFER_SIZE );
-                buffersOut = null;
-            }
-
-            if ( buffersOut == null )
-            {
-                buffersOutIdx = 0;
-                buffersOut = out.nioBuffers( out.writerIndex(), out.writableBytes() );
-            }
-
-            int totalIn = zlib.getTotalIn();
-            ByteBuffer bufferOut = buffersOut[buffersOutIdx];
-            int written = zlib.deflate( bufferOut );
-            int read = zlib.getTotalIn() - totalIn;
-
-            in.readerIndex( in.readerIndex() + read );
-            out.writerIndex( out.writerIndex() + written );
-
-            if ( !bufferOut.hasRemaining() )
-            {
-                buffersOutIdx++;
-            }
-
-            if ( written == 0 )
-            {
-                if ( zlib.needsInput() )
+                if ( buffersInIdx == buffersIn.length - 1 )
                 {
-                    zlib.setInput( buffersIn[++buffersInIdx] );
-                } else
+                    zlib.finish();
+                }
+
+                if ( out.writableBytes() < COMPRESS_BUFFER_SIZE )
                 {
-                    throw new IllegalStateException( "No bytes written but no input required" );
+                    out.ensureWritable( COMPRESS_BUFFER_SIZE );
+                    buffersOut = null;
+                }
+
+                if ( buffersOut == null )
+                {
+                    buffersOutIdx = 0;
+                    buffersOut = out.nioBuffers( out.writerIndex(), out.writableBytes() );
+                }
+
+                int totalIn = zlib.getTotalIn();
+                ByteBuffer bufferOut = buffersOut[buffersOutIdx];
+                int written = zlib.deflate( bufferOut );
+                int read = zlib.getTotalIn() - totalIn;
+
+                in.readerIndex( in.readerIndex() + read );
+                out.writerIndex( out.writerIndex() + written );
+
+                if ( !bufferOut.hasRemaining() )
+                {
+                    buffersOutIdx++;
+                }
+
+                if ( written == 0 )
+                {
+                    if ( zlib.needsInput() )
+                    {
+                        zlib.setInput( buffersIn[++buffersInIdx] );
+                    } else
+                    {
+                        throw new IllegalStateException( "No bytes written but no input required" );
+                    }
                 }
             }
+        } finally
+        {
+            zlib.reset();
         }
-
-        zlib.reset();
     }
 
     @Override

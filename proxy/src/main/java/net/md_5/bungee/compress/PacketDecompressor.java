@@ -31,44 +31,49 @@ public class PacketDecompressor extends MessageToMessageDecoder<ByteBuf>
         int buffersOutIdx = 0;
         ByteBuffer[] buffersOut = null;
 
-        zlib.setInput( buffersIn[buffersInIdx] );
-
-        while ( !zlib.finished() )
+        try
         {
-            Preconditions.checkState( out.isWritable(), "Output buffer not writable. Overflow?" );
+            zlib.setInput( buffersIn[buffersInIdx] );
 
-            if ( buffersOut == null )
+            while ( !zlib.finished() )
             {
-                buffersOutIdx = 0;
-                buffersOut = out.nioBuffers( out.writerIndex(), out.writableBytes() );
-            }
+                Preconditions.checkState( out.isWritable(), "Output buffer not writable. Overflow?" );
 
-            int totalIn = zlib.getTotalIn();
-            ByteBuffer bufferOut = buffersOut[buffersOutIdx];
-            int written = zlib.inflate( bufferOut );
-            int read = zlib.getTotalIn() - totalIn;
-
-            in.readerIndex( in.readerIndex() + read );
-            out.writerIndex( out.writerIndex() + written );
-
-            if ( !bufferOut.hasRemaining() )
-            {
-                buffersOutIdx++;
-            }
-
-            if ( written == 0 )
-            {
-                if ( zlib.needsInput() )
+                if ( buffersOut == null )
                 {
-                    zlib.setInput( buffersIn[++buffersInIdx] );
-                } else
+                    buffersOutIdx = 0;
+                    buffersOut = out.nioBuffers( out.writerIndex(), out.writableBytes() );
+                }
+
+                int totalIn = zlib.getTotalIn();
+                ByteBuffer bufferOut = buffersOut[buffersOutIdx];
+                int written = zlib.inflate( bufferOut );
+                int read = zlib.getTotalIn() - totalIn;
+
+                in.readerIndex( in.readerIndex() + read );
+                out.writerIndex( out.writerIndex() + written );
+
+                if ( !bufferOut.hasRemaining() )
                 {
-                    throw new IllegalStateException( "No bytes written but no input required" );
+                    buffersOutIdx++;
+                }
+
+                if ( written == 0 )
+                {
+                    if ( zlib.needsInput() )
+                    {
+                        zlib.setInput( buffersIn[++buffersInIdx] );
+                    } else
+                    {
+                        throw new IllegalStateException( "No bytes written but no input required" );
+                    }
                 }
             }
+            Preconditions.checkState( !in.isReadable(), "Did not fully decompress" );
+        } finally
+        {
+            zlib.reset();
         }
-
-        zlib.reset();
     }
 
     @Override
