@@ -67,7 +67,16 @@ public class JavaZlib implements BungeeZlib
             while ( !inflater.finished() && inflater.getTotalIn() < inData.length )
             {
                 int count = inflater.inflate( buffer );
+                if ( count == 0 && !inflater.finished() )
+                {
+                    throw new DataFormatException( "Invalid or incomplete zlib stream" );
+                }
                 out.writeBytes( buffer, 0, count );
+            }
+
+            if ( !inflater.finished() )
+            {
+                throw new DataFormatException( "Incomplete zlib stream" );
             }
 
             inflater.reset();

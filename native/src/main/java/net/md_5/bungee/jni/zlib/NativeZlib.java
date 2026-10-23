@@ -73,6 +73,11 @@ public class NativeZlib implements BungeeZlib
             out.writerIndex( out.writerIndex() + processed );
         }
 
+        if ( !nativeCompress.finished )
+        {
+            throw new DataFormatException( "Incomplete zlib stream" );
+        }
+
         nativeCompress.reset( ctx, compress );
         nativeCompress.consumed = 0;
         nativeCompress.finished = false;
