@@ -12,6 +12,8 @@ import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.command.ConsoleCommandSender;
+import org.jline.reader.EndOfFileException;
+import org.jline.reader.UserInterruptException;
 
 public class BungeeCordLauncher
 {
@@ -54,7 +56,7 @@ public class BungeeCordLauncher
             if ( buildDate.before( deadline.getTime() ) )
             {
                 System.err.println( "*** Warning, this build is outdated ***" );
-                System.err.println( "*** Please download a new build from http://ci.md-5.net/job/BungeeCord ***" );
+                System.err.println( "*** Please download a new build from https://www.spigotmc.org/go/bungeecord-dl ***" );
                 System.err.println( "*** You will get NO support regarding this build ***" );
                 System.err.println( "*** Server will start in 10 seconds ***" );
                 Thread.sleep( TimeUnit.SECONDS.toMillis( 10 ) );
@@ -68,13 +70,19 @@ public class BungeeCordLauncher
 
         if ( !options.has( "noconsole" ) )
         {
-            String line;
-            while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
+            try
             {
-                if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
+                String line;
+                while ( bungee.isRunning && ( line = bungee.getConsoleReader().readLine( ">" ) ) != null )
                 {
-                    bungee.getConsole().sendMessage( new ComponentBuilder( "Command not found" ).color( ChatColor.RED ).create() );
+                    if ( !bungee.getPluginManager().dispatchCommand( ConsoleCommandSender.getInstance(), line ) )
+                    {
+                        bungee.getConsole().sendMessage( new ComponentBuilder( "Command not found" ).color( ChatColor.RED ).create() );
+                    }
                 }
+            } catch ( EndOfFileException | UserInterruptException ex )
+            {
+                // ignore
             }
         }
     }

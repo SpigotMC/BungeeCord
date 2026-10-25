@@ -36,10 +36,10 @@ import net.md_5.bungee.netty.ChannelWrapper;
 import net.md_5.bungee.netty.HandlerBoss;
 import net.md_5.bungee.netty.PacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Either;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.BundleDelimiter;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -60,6 +60,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.ViewDistance;
+import net.md_5.bungee.protocol.util.Either;
 import net.md_5.bungee.util.AddressUtil;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
@@ -221,7 +222,22 @@ public class ServerConnector extends PacketHandler
         ServerConnectedEvent event = new ServerConnectedEvent( user, server );
         bungee.getPluginManager().callEvent( event );
 
-        ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
+        // Already sent after config start
+        if ( user.getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
+        {
+            ch.write( BungeeCord.getInstance().registerChannels( user.getPendingConnection().getVersion() ) );
+
+            PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
+            if ( brandMessage != null )
+            {
+                ch.write( brandMessage );
+            }
+
+            if ( user.getSettings() != null )
+            {
+                ch.write( user.getSettings() );
+            }
+        }
         Queue<DefinedPacket> packetQueue = target.getPacketQueue();
         synchronized ( packetQueue )
         {
@@ -231,21 +247,10 @@ public class ServerConnector extends PacketHandler
             }
         }
 
-        PluginMessage brandMessage = user.getPendingConnection().getBrandMessage();
-        if ( brandMessage != null )
-        {
-            ch.write( brandMessage );
-        }
-
         Set<String> registeredChannels = user.getPendingConnection().getRegisteredChannels();
         if ( !registeredChannels.isEmpty() )
         {
             ch.write( new PluginMessage( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_13 ? "minecraft:register" : "REGISTER", Joiner.on( "\0" ).join( registeredChannels ).getBytes( StandardCharsets.UTF_8 ), false ) );
-        }
-
-        if ( user.getSettings() != null )
-        {
-            ch.write( user.getSettings() );
         }
 
         if ( user.getForgeClientHandler().getClientModList() == null && !user.getForgeClientHandler().isHandshakeComplete() ) // Vanilla
@@ -262,7 +267,7 @@ public class ServerConnector extends PacketHandler
             // Set tab list size, TODO: what shall we do about packet mutability
             Login modLogin = new Login( login.getEntityId(), login.isHardcore(), login.getGameMode(), login.getPreviousGameMode(), login.getWorldNames(), login.getDimensions(), login.getDimension(), login.getWorldName(), login.getSeed(), login.getDifficulty(),
                     (byte) user.getPendingConnection().getListener().getTabListSize(), login.getLevelType(), login.getViewDistance(), login.getSimulationDistance(), login.isReducedDebugInfo(), login.isNormalRespawn(), login.isLimitedCrafting(), login.isDebug(), login.isFlat(), login.getDeathLocation(),
-                    login.getPortalCooldown(), login.getSeaLevel(), login.isSecureProfile() );
+                    login.getPortalCooldown(), login.getSeaLevel(), user.getPendingConnection().isOnlineMode(), login.isSecureProfile() );
 
             user.unsafe().sendPacket( modLogin );
 
@@ -372,15 +377,19 @@ public class ServerConnector extends PacketHandler
         {
             if ( user.getServer() != null )
             {
-                // Begin config mode
                 if ( user.getCh().getEncodeProtocol() != Protocol.CONFIGURATION )
                 {
+                    if ( user.isBundling() )
+                    {
+                        user.toggleBundling();
+                        user.unsafe().sendPacket( new BundleDelimiter() );
+                    }
                     user.unsafe().sendPacket( new StartConfiguration() );
                 }
             } else
             {
                 LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
-                user.unsafe().sendPacket( new LoginSuccess( user.getRewriteId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                user.unsafe().sendPacket( new LoginSuccess( user.getRewriteId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), user.getSessionId() ) );
                 user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
             }
         }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -312,8 +313,9 @@ public abstract class BaseComponent
     }
 
     /**
-     * Returns the shadow color of this component. This uses the parent's shadow color if this
-     * component doesn't have one. null is returned if no shadow color is found.
+     * Returns the shadow color of this component. This uses the parent's shadow
+     * color if this component doesn't have one. null is returned if no shadow
+     * color is found.
      *
      * @return the shadow color of this component
      */
@@ -677,11 +679,11 @@ public abstract class BaseComponent
     public String toPlainText()
     {
         StringBuilder builder = new StringBuilder();
-        toPlainText( builder );
+        toPlainText( new LimitedStringVisitor( builder, Short.MAX_VALUE ) );
         return builder.toString();
     }
 
-    void toPlainText(StringBuilder builder)
+    void toPlainText(StringVisitor builder)
     {
         if ( extra != null )
         {
@@ -701,11 +703,11 @@ public abstract class BaseComponent
     public String toLegacyText()
     {
         StringBuilder builder = new StringBuilder();
-        toLegacyText( builder );
+        toLegacyText( new LimitedStringVisitor( builder, Short.MAX_VALUE ) );
         return builder.toString();
     }
 
-    void toLegacyText(StringBuilder builder)
+    void toLegacyText(StringVisitor builder)
     {
         if ( extra != null )
         {
@@ -716,7 +718,7 @@ public abstract class BaseComponent
         }
     }
 
-    void addFormat(StringBuilder builder)
+    void addFormat(StringVisitor builder)
     {
         builder.append( getColor() );
         if ( isBold() )
@@ -738,6 +740,37 @@ public abstract class BaseComponent
         if ( isObfuscated() )
         {
             builder.append( ChatColor.MAGIC );
+        }
+    }
+
+    @FunctionalInterface
+    protected static interface StringVisitor
+    {
+
+        void append(String s);
+
+        default void append(Object obj)
+        {
+            append( String.valueOf( obj ) );
+        }
+    }
+
+    @Data
+    protected static class LimitedStringVisitor implements StringVisitor
+    {
+
+        private final StringBuilder builder;
+        private final int maxLength;
+
+        @Override
+        public void append(String s)
+        {
+            if ( builder.length() >= maxLength )
+            {
+                throw new IllegalArgumentException( "String exceeded maximum length " + maxLength );
+            }
+
+            builder.append( s );
         }
     }
 }

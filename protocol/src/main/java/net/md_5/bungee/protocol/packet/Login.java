@@ -7,11 +7,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
-import net.md_5.bungee.protocol.Location;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import se.llbit.nbt.Tag;
+import net.md_5.bungee.protocol.data.Location;
 
 @Data
 @NoArgsConstructor
@@ -22,8 +22,8 @@ public class Login extends DefinedPacket
 
     private int entityId;
     private boolean hardcore;
-    private short gameMode;
-    private short previousGameMode;
+    private int gameMode;
+    private int previousGameMode;
     private Set<String> worldNames;
     private Tag dimensions;
     private Object dimension;
@@ -42,6 +42,7 @@ public class Login extends DefinedPacket
     private Location deathLocation;
     private int portalCooldown;
     private int seaLevel;
+    private boolean onlineMode;
     private boolean secureProfile;
 
     @Override
@@ -143,8 +144,15 @@ public class Login extends DefinedPacket
             }
             worldName = readString( buf );
             seed = buf.readLong();
-            gameMode = buf.readUnsignedByte();
-            previousGameMode = buf.readByte();
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
+            {
+                gameMode = readVarInt( buf );
+                previousGameMode = readVarInt( buf );
+            } else
+            {
+                gameMode = buf.readUnsignedByte();
+                previousGameMode = buf.readByte();
+            }
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
@@ -165,6 +173,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             seaLevel = readVarInt( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+        {
+            onlineMode = buf.readBoolean();
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {
@@ -273,8 +285,15 @@ public class Login extends DefinedPacket
             }
             writeString( worldName, buf );
             buf.writeLong( seed );
-            buf.writeByte( gameMode );
-            buf.writeByte( previousGameMode );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
+            {
+                writeVarInt( gameMode, buf );
+                writeVarInt( previousGameMode, buf );
+            } else
+            {
+                buf.writeByte( gameMode );
+                buf.writeByte( previousGameMode );
+            }
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
@@ -300,6 +319,10 @@ public class Login extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_2 )
         {
             writeVarInt( seaLevel, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
+        {
+            buf.writeBoolean( onlineMode );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_20_5 )
         {

@@ -1,5 +1,6 @@
 package net.md_5.bungee.api.connection;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -8,10 +9,12 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.ServerLink;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.config.ServerInfo;
+import net.md_5.bungee.api.dialog.Dialog;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
 import org.jetbrains.annotations.ApiStatus;
@@ -382,4 +385,44 @@ public interface ProxiedPlayer extends Connection, CommandSender
      */
     @ApiStatus.Experimental
     void transfer(String host, int port);
+
+    /**
+     * Gets the client brand of this player.
+     *
+     * If the player has not sent a brand packet yet, it will return null.
+     *
+     * @return the brand of the client, or null if not received yet
+     */
+    String getClientBrand();
+
+    /**
+     * Clear the player's open dialog.
+     *
+     * @throws IllegalStateException if the players version is not at least
+     * 1.21.6
+     */
+    @ApiStatus.Experimental
+    void clearDialog();
+
+    /**
+     * Show a dialog to the player.
+     *
+     * @param dialog the dialog to show
+     * @throws IllegalStateException if the players version is not at least
+     * 1.21.6
+     */
+    @ApiStatus.Experimental
+    void showDialog(Dialog dialog);
+
+    /**
+     * Sends server links to the player.
+     *
+     * Note: The links already sent to the player will be overwritten. Also, the
+     * backend server is able to override links sent by the proxy.
+     *
+     * @param serverLinks the server links to send
+     * @throws IllegalStateException if the player's version is not at least
+     * 1.21
+     */
+    void sendServerLinks(List<ServerLink> serverLinks);
 }

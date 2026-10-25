@@ -1,9 +1,9 @@
 package net.md_5.bungee.util;
 
-import gnu.trove.map.hash.TCustomHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenCustomHashMap;
 import java.util.Map;
 
-public class CaseInsensitiveMap<V> extends TCustomHashMap<String, V>
+public class CaseInsensitiveMap<V> extends Object2ObjectOpenCustomHashMap<String, V>
 {
 
     public CaseInsensitiveMap()
@@ -13,6 +13,6 @@ public class CaseInsensitiveMap<V> extends TCustomHashMap<String, V>
 
     public CaseInsensitiveMap(Map<? extends String, ? extends V> map)
     {
-        super( CaseInsensitiveHashingStrategy.INSTANCE, map );
+        super( map, CaseInsensitiveHashingStrategy.INSTANCE );
     }
 }

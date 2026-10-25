@@ -1,15 +1,15 @@
 package net.md_5.bungee.entitymap;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import java.io.DataInputStream;
+import java.io.IOException;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.md_5.bungee.nbt.NamedTag;
+import net.md_5.bungee.nbt.limit.NBTLimiter;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import se.llbit.nbt.NamedTag;
-import se.llbit.nbt.Tag;
 
 /**
  * Class to rewrite integers within packets.
@@ -82,21 +82,9 @@ public abstract class EntityMap
             case ProtocolConstants.MINECRAFT_1_19_4:
             case ProtocolConstants.MINECRAFT_1_20:
                 return EntityMap_1_16_2.INSTANCE_1_19_4;
-            case ProtocolConstants.MINECRAFT_1_20_2:
-                return EntityMap_1_16_2.INSTANCE_1_20_2;
-            case ProtocolConstants.MINECRAFT_1_20_3:
-                return EntityMap_1_16_2.INSTANCE_1_20_3;
-            case ProtocolConstants.MINECRAFT_1_20_5:
-            case ProtocolConstants.MINECRAFT_1_21:
-                return EntityMap_1_16_2.INSTANCE_1_20_5;
-            case ProtocolConstants.MINECRAFT_1_21_2:
-                return EntityMap_1_16_2.INSTANCE_1_21_2;
-            case ProtocolConstants.MINECRAFT_1_21_4:
-                return EntityMap_1_16_2.INSTANCE_1_21_4;
-            case ProtocolConstants.MINECRAFT_1_21_5:
-                return EntityMap_1_16_2.INSTANCE_1_21_5;
+            default:
+                return null;
         }
-        throw new RuntimeException( "Version " + version + " has no entity map" );
     }
 
     protected void addRewrite(int id, ProtocolConstants.Direction direction, boolean varint)
@@ -151,7 +139,6 @@ public abstract class EntityMap
         }
     }
 
-    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     protected static void rewriteVarInt(ByteBuf packet, int oldId, int newId, int offset)
     {
         // Need to rewrite the packet because VarInts are variable length
@@ -287,10 +274,13 @@ public abstract class EntityMap
                     DefinedPacket.readVarInt( packet );
                     break;
                 case 13:
-                    Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
-                    if ( tag.isError() )
+                    NamedTag tag = new NamedTag();
+                    try
                     {
-                        throw new RuntimeException( tag.error() );
+                        tag.read( new DataInputStream( new ByteBufInputStream( packet ) ), NBTLimiter.unlimitedSize() );
+                    } catch ( IOException ioException )
+                    {
+                        throw new RuntimeException( ioException );
                     }
                     break;
                 case 15:
@@ -333,10 +323,13 @@ public abstract class EntityMap
             {
                 packet.readerIndex( position );
 
-                Tag tag = NamedTag.read( new DataInputStream( new ByteBufInputStream( packet ) ) );
-                if ( tag.isError() )
+                NamedTag tag = new NamedTag();
+                try
                 {
-                    throw new RuntimeException( tag.error() );
+                    tag.read( new DataInputStream( new ByteBufInputStream( packet ) ), NBTLimiter.unlimitedSize() );
+                } catch ( IOException ioException )
+                {
+                    throw new RuntimeException( ioException );
                 }
             }
         }

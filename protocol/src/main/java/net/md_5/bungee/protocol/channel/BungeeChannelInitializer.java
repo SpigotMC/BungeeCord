@@ -7,8 +7,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * This class hold a netty channel initializer that calls the given {@link ChannelAcceptor}.
- * Use {@link BungeeChannelInitializer#create(ChannelAcceptor)} to create a new instance.
+ * This class hold a netty channel initializer that calls the given
+ * {@link ChannelAcceptor}.
+ *
+ * Use {@link BungeeChannelInitializer#create(ChannelAcceptor)} to create a new
+ * instance.
  * <p>
  * Please note that this API is unsafe and doesn't provide any guarantees about
  * the stability of the channel pipeline or the API itself. Use at your own

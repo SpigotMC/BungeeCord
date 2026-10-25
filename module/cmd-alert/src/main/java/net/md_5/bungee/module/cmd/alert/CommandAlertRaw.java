@@ -15,7 +15,7 @@ public class CommandAlertRaw extends Command
 
     public CommandAlertRaw()
     {
-        super( "alertraw", "bungeecord.command.alert" );
+        super( "alertraw", "bungeecord.command.alertraw" );
     }
 
     @Override

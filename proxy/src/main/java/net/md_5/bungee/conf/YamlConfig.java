@@ -1,6 +1,5 @@
 package net.md_5.bungee.conf;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -95,7 +94,7 @@ public class YamlConfig implements ConfigurationAdapter
             } ) );
             set( "permissions.admin", Arrays.asList( new String[]
             {
-                "bungeecord.command.alert", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload", "bungeecord.command.kick", "bungeecord.command.send", "bungeecord.command.find"
+                "bungeecord.command.alert", "bungeecord.command.alertraw", "bungeecord.command.end", "bungeecord.command.ip", "bungeecord.command.reload", "bungeecord.command.kick", "bungeecord.command.send", "bungeecord.command.find", "bungeecord.command.perms"
             } ) );
         }
 
@@ -230,7 +229,6 @@ public class YamlConfig implements ConfigurationAdapter
 
     @Override
     @SuppressWarnings("unchecked")
-    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     public Collection<ListenerInfo> getListeners()
     {
         Collection<Map<String, Object>> base = get( "listeners", (Collection) Arrays.asList( new Map[]
@@ -305,7 +303,7 @@ public class YamlConfig implements ConfigurationAdapter
         Map<String, Collection<String>> raw = get( "groups", Collections.emptyMap() );
         Collection<String> groups = raw.get( player );
 
-        Collection<String> ret = ( groups == null ) ? new HashSet<String>() : new HashSet<>( groups );
+        Collection<String> ret = ( groups == null ) ? new HashSet<>() : new HashSet<>( groups );
         ret.add( "default" );
         return ret;
     }

@@ -1,9 +1,9 @@
 package net.md_5.bungee.util;
 
-import gnu.trove.set.hash.TCustomHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 import java.util.Collection;
 
-public class CaseInsensitiveSet extends TCustomHashSet<String>
+public class CaseInsensitiveSet extends ObjectOpenCustomHashSet<String>
 {
 
     public CaseInsensitiveSet()
@@ -13,6 +13,6 @@ public class CaseInsensitiveSet extends TCustomHashSet<String>
 
     public CaseInsensitiveSet(Collection<? extends String> collection)
     {
-        super( CaseInsensitiveHashingStrategy.INSTANCE, collection );
+        super( collection, CaseInsensitiveHashingStrategy.INSTANCE );
     }
 }

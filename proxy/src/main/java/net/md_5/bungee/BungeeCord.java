@@ -6,7 +6,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -45,8 +44,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import jline.console.ConsoleReader;
 import lombok.Getter;
+import lombok.Locked;
 import lombok.Setter;
 import lombok.Synchronized;
 import net.md_5.bungee.api.CommandSender;
@@ -72,10 +71,10 @@ import net.md_5.bungee.command.CommandPerms;
 import net.md_5.bungee.command.CommandReload;
 import net.md_5.bungee.command.ConsoleCommandCompleter;
 import net.md_5.bungee.command.ConsoleCommandSender;
-import net.md_5.bungee.compress.CompressFactory;
 import net.md_5.bungee.conf.Configuration;
 import net.md_5.bungee.conf.YamlConfig;
 import net.md_5.bungee.forge.ForgeConstants;
+import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.log.BungeeLogger;
 import net.md_5.bungee.log.LoggingForwardHandler;
 import net.md_5.bungee.log.LoggingOutputStream;
@@ -88,8 +87,11 @@ import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.query.RemoteQuery;
 import net.md_5.bungee.scheduler.BungeeScheduler;
 import net.md_5.bungee.util.CaseInsensitiveMap;
-import org.fusesource.jansi.AnsiConsole;
-import org.slf4j.impl.JDK14LoggerFactory;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.slf4j.jul.JDK14LoggerFactory;
 
 /**
  * Main BungeeCord proxy class.
@@ -150,7 +152,7 @@ public class BungeeCord extends ProxyServer
     @Getter
     private final BungeeScheduler scheduler = new BungeeScheduler();
     @Getter
-    private final ConsoleReader consoleReader;
+    private final LineReader consoleReader;
     @Getter
     private final Logger logger;
     @Getter
@@ -182,7 +184,6 @@ public class BungeeCord extends ProxyServer
         private BungeeChannelInitializer serverInfoChannelInitializer;
     };
 
-    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public BungeeCord() throws IOException
     {
         // Java uses ! to indicate a resource inside of a jar/zip/other container. Running Bungee from within a directory that has a ! will cause this to muck up.
@@ -200,10 +201,11 @@ public class BungeeCord extends ProxyServer
         // BungeeCord. This version is only used when extracting the libraries to their temp folder.
         System.setProperty( "library.jansi.version", "BungeeCord" );
 
-        AnsiConsole.systemInstall();
-        consoleReader = new ConsoleReader();
-        consoleReader.setExpandEvents( false );
-        consoleReader.addCompleter( new ConsoleCommandCompleter( this ) );
+        Terminal terminal = TerminalBuilder.builder().build();
+        consoleReader = LineReaderBuilder.builder().terminal( terminal )
+                .option( LineReader.Option.DISABLE_EVENT_EXPANSION, true )
+                .completer( new ConsoleCommandCompleter( this ) )
+                .build();
 
         logger = new BungeeLogger( "BungeeCord", "proxy.log", consoleReader );
         JDK14LoggerFactory.LOGGER = logger;
@@ -234,19 +236,17 @@ public class BungeeCord extends ProxyServer
 
         if ( !Boolean.getBoolean( "net.md_5.bungee.native.disable" ) )
         {
+            if ( !NativeCode.hasDirectBuffers() )
+            {
+                logger.warning( "Memory addresses are not available in direct buffers" );
+            }
+
             if ( EncryptionUtil.nativeFactory.load() )
             {
                 logger.info( "Using mbed TLS based native cipher." );
             } else
             {
                 logger.info( "Using standard Java JCE cipher." );
-            }
-            if ( CompressFactory.zlib.load() )
-            {
-                logger.info( "Using zlib based native compressor." );
-            } else
-            {
-                logger.info( "Using standard Java compressor." );
             }
         }
     }
@@ -257,13 +257,20 @@ public class BungeeCord extends ProxyServer
      *
      * @throws Exception any critical errors encountered
      */
-    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
     public void start() throws Exception
     {
         System.setProperty( "io.netty.selectorAutoRebuildThreshold", "0" ); // Seems to cause Bungee to stop accepting connections
         if ( System.getProperty( "io.netty.leakDetectionLevel" ) == null && System.getProperty( "io.netty.leakDetection.level" ) == null )
         {
             ResourceLeakDetector.setLevel( ResourceLeakDetector.Level.DISABLED ); // Eats performance
+        }
+
+        // https://github.com/netty/netty/wiki/Netty-4.2-Migration-Guide
+        // The adaptive allocator, the new default allocator since Netty 4.2, has some memory issues.
+        // Setting it globally also ensures that any plugins would also use the pooled allocator.
+        if ( System.getProperty( "io.netty.allocator.type" ) == null )
+        {
+            System.setProperty( "io.netty.allocator.type", "pooled" );
         }
 
         eventLoops = PipelineUtils.newEventLoopGroup( 0, new ThreadFactoryBuilder().setNameFormat( "Netty IO Thread #%1$d" ).build() );
@@ -419,8 +426,6 @@ public class BungeeCord extends ProxyServer
     }
 
     // This must be run on a separate thread to avoid deadlock!
-    @SuppressFBWarnings("DM_EXIT")
-    @SuppressWarnings("TooBroadCatch")
     private void independentThreadStop(final String reason, boolean callSystemExit)
     {
         // Acquire the shutdown lock
@@ -517,18 +522,12 @@ public class BungeeCord extends ProxyServer
      *
      * @param packet the packet to send
      */
+    @Locked.Read("connectionLock")
     public void broadcast(DefinedPacket packet)
     {
-        connectionLock.readLock().lock();
-        try
+        for ( UserConnection con : connections.values() )
         {
-            for ( UserConnection con : connections.values() )
-            {
-                con.unsafe().sendPacket( packet );
-            }
-        } finally
-        {
-            connectionLock.readLock().unlock();
+            con.unsafe().sendPacket( packet );
         }
     }
 
@@ -590,17 +589,11 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @Locked.Read("connectionLock")
     @SuppressWarnings("unchecked")
     public Collection<ProxiedPlayer> getPlayers()
     {
-        connectionLock.readLock().lock();
-        try
-        {
-            return Collections.unmodifiableCollection( new HashSet( connections.values() ) );
-        } finally
-        {
-            connectionLock.readLock().unlock();
-        }
+        return Collections.unmodifiableCollection( new HashSet( connections.values() ) );
     }
 
     @Override
@@ -610,16 +603,10 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @Locked.Read("connectionLock")
     public ProxiedPlayer getPlayer(String name)
     {
-        connectionLock.readLock().lock();
-        try
-        {
-            return connections.get( name );
-        } finally
-        {
-            connectionLock.readLock().unlock();
-        }
+        return connections.get( name );
     }
 
     public UserConnection getPlayerByOfflineUUID(UUID uuid)
@@ -639,16 +626,10 @@ public class BungeeCord extends ProxyServer
     }
 
     @Override
+    @Locked.Read("connectionLock")
     public ProxiedPlayer getPlayer(UUID uuid)
     {
-        connectionLock.readLock().lock();
-        try
-        {
-            return connectionsByUUID.get( uuid );
-        } finally
-        {
-            connectionLock.readLock().unlock();
-        }
+        return connectionsByUUID.get( uuid );
     }
 
     @Override
@@ -774,21 +755,15 @@ public class BungeeCord extends ProxyServer
         return true;
     }
 
+    @Locked.Write("connectionLock")
     public void removeConnection(UserConnection con)
     {
-        connectionLock.writeLock().lock();
-        try
+        // TODO See #1218
+        if ( connections.get( con.getName() ) == con )
         {
-            // TODO See #1218
-            if ( connections.get( con.getName() ) == con )
-            {
-                connections.remove( con.getName() );
-                connectionsByUUID.remove( con.getUniqueId() );
-                connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
-            }
-        } finally
-        {
-            connectionLock.writeLock().unlock();
+            connections.remove( con.getName() );
+            connectionsByUUID.remove( con.getUniqueId() );
+            connectionsByOfflineUUID.remove( con.getPendingConnection().getOfflineId() );
         }
     }
 

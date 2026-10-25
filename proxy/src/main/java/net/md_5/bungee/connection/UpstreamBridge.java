@@ -8,15 +8,14 @@ import io.netty.channel.Channel;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
+import net.md_5.bungee.api.event.CustomClickEvent;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.SettingsChangedEvent;
@@ -34,17 +33,16 @@ import net.md_5.bungee.protocol.packet.ClientChat;
 import net.md_5.bungee.protocol.packet.ClientCommand;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.CookieResponse;
-import net.md_5.bungee.protocol.packet.FinishConfiguration;
+import net.md_5.bungee.protocol.packet.CustomClickAction;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
-import net.md_5.bungee.protocol.packet.PlayerListItem;
-import net.md_5.bungee.protocol.packet.PlayerListItemRemove;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.UnsignedClientCommand;
+import net.md_5.bungee.protocol.util.TagUtil;
 import net.md_5.bungee.util.AllowedCharacters;
 
 public class UpstreamBridge extends PacketHandler
@@ -80,38 +78,6 @@ public class UpstreamBridge extends PacketHandler
 
         if ( con.getServer() != null )
         {
-            // Manually remove from everyone's tab list
-            // since the packet from the server arrives
-            // too late
-            // TODO: This should only done with server_unique
-            //       tab list (which is the only one supported
-            //       currently)
-            PlayerListItem oldPacket = new PlayerListItem();
-            oldPacket.setAction( PlayerListItem.Action.REMOVE_PLAYER );
-            PlayerListItem.Item item = new PlayerListItem.Item();
-            item.setUuid( con.getRewriteId() );
-            oldPacket.setItems( new PlayerListItem.Item[]
-            {
-                item
-            } );
-
-            PlayerListItemRemove newPacket = new PlayerListItemRemove();
-            newPacket.setUuids( new UUID[]
-            {
-                con.getRewriteId()
-            } );
-
-            for ( ProxiedPlayer player : con.getServer().getInfo().getPlayers() )
-            {
-                if ( player.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_19_3 )
-                {
-                    // need to queue, because players in config state could receive it
-                    player.unsafe().sendPacketQueued( newPacket );
-                } else
-                {
-                    player.unsafe().sendPacket( oldPacket );
-                }
-            }
             con.getServer().disconnect( "Quitting" );
         }
     }
@@ -135,7 +101,18 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public boolean shouldHandle(PacketWrapper packet) throws Exception
     {
-        return con.getServer() != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
+        ServerConnection server = con.getServer();
+        if ( server != null && server.isConnected() )
+        {
+            Protocol serverEncode = server.getCh().getEncodeProtocol();
+            // #3527, #4010: May still have old packets from client in game state when switching server to configuration state - discard those
+            // packets which switch the protocol phase are exempt, they are what advances the server connection to the new phase
+            if ( packet.protocol != serverEncode && ( packet.packet == null || packet.packet.nextProtocol() == null ) )
+            {
+                return false;
+            }
+        }
+        return server != null || packet.packet instanceof PluginMessage || packet.packet instanceof CookieResponse || packet.packet instanceof LoginPayloadResponse;
     }
 
     @Override
@@ -144,15 +121,8 @@ public class UpstreamBridge extends PacketHandler
         ServerConnection server = con.getServer();
         if ( server != null && server.isConnected() )
         {
-            Protocol serverEncode = server.getCh().getEncodeProtocol();
-            // #3527: May still have old packets from client in game state when switching server to configuration state - discard those
-            if ( packet.protocol != serverEncode )
-            {
-                return;
-            }
-
             EntityMap rewrite = con.getEntityRewrite();
-            if ( rewrite != null && serverEncode == Protocol.GAME )
+            if ( rewrite != null && server.getCh().getEncodeProtocol() == Protocol.GAME )
             {
                 rewrite.rewriteServerbound( packet.buf, con.getClientEntityId(), con.getServerEntityId(), con.getPendingConnection().getVersion() );
             }
@@ -346,6 +316,7 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception
     {
+        con.getServer().setFirstLogin( true );
         configureServer();
     }
 
@@ -364,16 +335,20 @@ public class UpstreamBridge extends PacketHandler
             ch.write( new LoginAcknowledged() );
             ch.setEncodeProtocol( Protocol.CONFIGURATION );
 
+            // send the registered plugin channel as soon as the server is in config state
+            ch.write( BungeeCord.getInstance().registerChannels( con.getPendingConnection().getVersion() ) );
+            if ( con.getSettings() != null )
+            {
+                ch.write( con.getSettings() );
+            }
+            if ( con.getPendingConnection().getBrandMessage() != null )
+            {
+                ch.write( con.getPendingConnection().getBrandMessage() );
+            }
             con.getServer().sendQueuedPackets();
 
             throw CancelSendSignal.INSTANCE;
         }
-    }
-
-    @Override
-    public void handle(FinishConfiguration finishConfiguration) throws Exception
-    {
-        con.sendQueuedPackets();
     }
 
     @Override
@@ -386,6 +361,16 @@ public class UpstreamBridge extends PacketHandler
     public void handle(LoginPayloadResponse loginPayloadResponse) throws Exception
     {
         con.getPendingConnection().handle( loginPayloadResponse );
+    }
+
+    @Override
+    public void handle(CustomClickAction customClickAction) throws Exception
+    {
+        CustomClickEvent event = new CustomClickEvent( con, customClickAction.getId(), TagUtil.toJson( customClickAction.getData() ) );
+        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
+        {
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override

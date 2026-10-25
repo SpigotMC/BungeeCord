@@ -8,7 +8,6 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +16,7 @@ import lombok.ToString;
 /**
  * Metadata for use in conjunction with {@link HoverEvent.Action#SHOW_ITEM}
  */
-@Builder(builderClassName = "Builder", access = AccessLevel.PRIVATE)
+@lombok.Builder(builderClassName = "Builder", access = AccessLevel.PRIVATE)
 @ToString(of = "nbt")
 @EqualsAndHashCode(of = "nbt")
 @Setter

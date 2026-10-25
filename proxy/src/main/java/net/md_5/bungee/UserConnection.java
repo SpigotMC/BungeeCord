@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -30,12 +31,14 @@ import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.ServerConnectRequest;
+import net.md_5.bungee.api.ServerLink;
 import net.md_5.bungee.api.SkinConfiguration;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.dialog.Dialog;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.score.Scoreboard;
@@ -55,14 +58,19 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.packet.Chat;
+import net.md_5.bungee.protocol.packet.ClearDialog;
 import net.md_5.bungee.protocol.packet.ClientSettings;
 import net.md_5.bungee.protocol.packet.Kick;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PluginMessage;
+import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
+import net.md_5.bungee.protocol.packet.ShowDialog;
+import net.md_5.bungee.protocol.packet.ShowDialogDirect;
 import net.md_5.bungee.protocol.packet.StoreCookie;
 import net.md_5.bungee.protocol.packet.SystemChat;
 import net.md_5.bungee.protocol.packet.Transfer;
+import net.md_5.bungee.protocol.util.Either;
 import net.md_5.bungee.tab.ServerUnique;
 import net.md_5.bungee.tab.TabList;
 import net.md_5.bungee.util.CaseInsensitiveSet;
@@ -112,10 +120,20 @@ public final class UserConnection implements ProxiedPlayer
     // Used for trying multiple servers in order
     @Setter
     private Queue<String> serverJoinQueue;
+    @Getter
+    @Setter
+    private boolean bundling;
+
+    public void toggleBundling()
+    {
+        bundling = !bundling;
+    }
     /*========================================================================*/
     private final Collection<String> groups = new CaseInsensitiveSet();
     private final Collection<String> permissions = new CaseInsensitiveSet();
     /*========================================================================*/
+    @Getter
+    private final UUID sessionId = UUID.randomUUID();
     @Getter
     @Setter
     private int clientEntityId;
@@ -383,7 +401,6 @@ public final class UserConnection implements ProxiedPlayer
         ChannelFutureListener listener = new ChannelFutureListener()
         {
             @Override
-            @SuppressWarnings("ThrowableResultIgnored")
             public void operationComplete(ChannelFuture future) throws Exception
             {
                 if ( callback != null )
@@ -782,6 +799,11 @@ public final class UserConnection implements ProxiedPlayer
         return this.getPendingConnection().getExtraDataInHandshake();
     }
 
+    public String getClientBrand()
+    {
+        return getPendingConnection().getClientBrand();
+    }
+
     public void setCompressionThreshold(int compressionThreshold)
     {
         if ( !ch.isClosing() && this.compressionThreshold == -1 && compressionThreshold >= 0 )
@@ -824,5 +846,39 @@ public final class UserConnection implements ProxiedPlayer
         Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Transfers are only supported in 1.20.5 and above" );
 
         unsafe().sendPacket( new Transfer( host, port ) );
+    }
+
+    @Override
+    public void clearDialog()
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6, "Dialogs are only supported in 1.21.6 and above" );
+
+        unsafe().sendPacket( new ClearDialog() );
+    }
+
+    @Override
+    public void showDialog(Dialog dialog)
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21_6, "Dialogs are only supported in 1.21.6 and above" );
+
+        if ( ch.getEncodeProtocol() == Protocol.CONFIGURATION )
+        {
+            unsafe.sendPacket( new ShowDialogDirect( dialog ) );
+            return;
+        }
+
+        unsafe.sendPacket( new ShowDialog( Either.right( dialog ) ) );
+    }
+
+    @Override
+    public void sendServerLinks(List<ServerLink> serverLinks)
+    {
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_21, "Server links are only supported in 1.21 and above" );
+
+        ServerLinks.Link[] links = serverLinks.stream()
+                .map( link -> new ServerLinks.Link( link.getType() != null ? Either.left( link.getType().ordinal() ) : Either.right( link.getLabel() ), link.getUrl() ) )
+                .toArray( ServerLinks.Link[]::new );
+
+        unsafe.sendPacket( new ServerLinks( links ) );
     }
 }

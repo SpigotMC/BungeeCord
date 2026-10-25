@@ -1,15 +1,15 @@
 package net.md_5.bungee.log;
 
-import java.io.IOException;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.regex.Pattern;
-import jline.console.ConsoleReader;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import net.md_5.bungee.api.ChatColor;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Erase;
+import org.jline.jansi.Ansi;
+import org.jline.reader.LineReader;
 
+@RequiredArgsConstructor
 public class ColouredWriter extends Handler
 {
 
@@ -52,12 +52,7 @@ public class ColouredWriter extends Handler
         compile( ChatColor.RESET, Ansi.ansi().a( Ansi.Attribute.RESET ).toString() ),
     };
     //
-    private final ConsoleReader console;
-
-    public ColouredWriter(ConsoleReader console)
-    {
-        this.console = console;
-    }
+    private final LineReader console;
 
     public void print(String s)
     {
@@ -65,14 +60,7 @@ public class ColouredWriter extends Handler
         {
             s = replacement.pattern.matcher( s ).replaceAll( replacement.replacement );
         }
-        try
-        {
-            console.print( Ansi.ansi().eraseLine( Erase.ALL ).toString() + ConsoleReader.RESET_LINE + s + Ansi.ansi().reset().toString() );
-            console.drawLine();
-            console.flush();
-        } catch ( IOException ex )
-        {
-        }
+        console.printAbove( s + Ansi.ansi().reset().toString() );
     }
 
     @Override

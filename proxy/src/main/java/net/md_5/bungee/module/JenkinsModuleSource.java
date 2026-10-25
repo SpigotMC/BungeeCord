@@ -19,7 +19,7 @@ public class JenkinsModuleSource implements ModuleSource
         ProxyServer.getInstance().getLogger().info( "Attempting to Jenkins download module " + module.getName() + " v" + version.getBuild() );
         try
         {
-            URL website = new URL( "https://ci.md-5.net/job/BungeeCord/" + version.getBuild() + "/artifact/module/" + module.getName().replace( '_', '-' ) + "/target/" + module.getName() + ".jar" );
+            URL website = new URL( "https://hub.spigotmc.org/jenkins/job/BungeeCord/" + version.getBuild() + "/artifact/module/" + module.getName().replace( '_', '-' ) + "/target/" + module.getName() + ".jar" );
             URLConnection con = website.openConnection();
             // 15 second timeout at various stages
             con.setConnectTimeout( 15000 );

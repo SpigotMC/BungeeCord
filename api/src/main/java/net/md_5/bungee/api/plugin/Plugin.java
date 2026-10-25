@@ -11,6 +11,7 @@ import lombok.Getter;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ConfigurationAdapter;
 import net.md_5.bungee.api.scheduler.GroupedThreadFactory;
+import org.jetbrains.annotations.ApiStatus;
 
 /**
  * Represents any Plugin that may be loaded at runtime to enhance existing
@@ -108,7 +109,14 @@ public class Plugin
     //
     private ExecutorService service;
 
+    /**
+     * Returns the executor service associated with this plugin.
+     *
+     * @return the executor service for this plugin
+     * @deprecated internal API. Use {@link ProxyServer#getScheduler()} instead
+     */
     @Deprecated
+    @ApiStatus.Internal
     public ExecutorService getExecutorService()
     {
         if ( service == null )

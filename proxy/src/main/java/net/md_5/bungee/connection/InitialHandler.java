@@ -2,6 +2,7 @@ package net.md_5.bungee.connection;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import io.netty.buffer.Unpooled;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -57,9 +58,9 @@ import net.md_5.bungee.netty.cipher.CipherDecoder;
 import net.md_5.bungee.netty.cipher.CipherEncoder;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
-import net.md_5.bungee.protocol.PlayerPublicKey;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.data.PlayerPublicKey;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -96,6 +97,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private EncryptionRequest request;
     @Getter
     private PluginMessage brandMessage;
+    @Getter
+    private String clientBrand;
     @Getter
     private final Set<String> registeredChannels = new HashSet<>();
     private State thisState = State.HANDSHAKE;
@@ -618,7 +621,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
                 {
-                    unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties() ) );
+                    unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), null ) );
                     ch.setProtocol( Protocol.GAME );
                 }
                 finish2();
@@ -668,11 +671,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Override
     public void handle(LoginPayloadResponse response) throws Exception
     {
-        CompletableFuture<byte[]> future;
-        synchronized ( requestedLoginPayloads )
-        {
-            future = requestedLoginPayloads.remove( response.getId() );
-        }
+        CompletableFuture<byte[]> future = requestedLoginPayloads.remove( response.getId() );
         Preconditions.checkState( future != null, "Unexpected custom LoginPayloadResponse" );
         future.complete( response.getData() );
 
@@ -691,32 +690,18 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(CookieResponse cookieResponse)
     {
         // be careful, backend server could also make the client send a cookie response
-        CookieFuture future;
-        synchronized ( requestedCookies )
+        CookieFuture future = requestedCookies.peek();
+        if ( future != null && future.cookie.equals( cookieResponse.getCookie() ) )
         {
-            future = requestedCookies.peek();
-            if ( future != null )
-            {
-                if ( future.cookie.equals( cookieResponse.getCookie() ) )
-                {
-                    Preconditions.checkState( future == requestedCookies.poll(), "requestedCookies queue mismatch" );
-                } else
-                {
-                    future = null; // leave for handling by backend
-                }
-            }
-        }
-
-        if ( future != null )
-        {
+            Preconditions.checkState( future == requestedCookies.poll(), "requestedCookies queue mismatch" );
             future.getFuture().complete( cookieResponse.getData() );
-
             throw CancelSendSignal.INSTANCE;
         }
 
         // if there is no userCon we can't have a connection to a backend server that could have requested this cookie
         // which means that this cookie is invalid as the proxy also has not requested it
         Preconditions.checkState( userCon != null, "not requested cookie received" );
+        // leave for handling by backend
     }
 
     @Override
@@ -849,6 +834,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         } else if ( input.getTag().equals( "MC|Brand" ) || input.getTag().equals( "minecraft:brand" ) )
         {
             brandMessage = input;
+            clientBrand = DefinedPacket.readString( Unpooled.wrappedBuffer( input.getData() ) );
         }
     }
 
@@ -865,11 +851,13 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         CompletableFuture<byte[]> future = new CompletableFuture<>();
-        synchronized ( requestedCookies )
+
+        String identifier = cookie;
+        ch.scheduleIfNecessary( () ->
         {
-            requestedCookies.add( new CookieFuture( cookie, future ) );
-        }
-        unsafe.sendPacket( new CookieRequest( cookie ) );
+            requestedCookies.add( new CookieFuture( identifier, future ) );
+            unsafe.sendPacket( new CookieRequest( identifier ) );
+        } );
 
         return future;
     }
@@ -881,14 +869,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         Preconditions.checkState( ch.getEncodeProtocol() == Protocol.LOGIN, "LoginPayloads are only supported in the login phase" );
 
         CompletableFuture<byte[]> future = new CompletableFuture<>();
-        final int id;
-        synchronized ( requestedLoginPayloads )
+        ch.scheduleIfNecessary( () ->
         {
-            // thread safe loginPayloadId
-            id = loginPayloadId++;
+            final int id = loginPayloadId++;
             requestedLoginPayloads.put( id, future );
-        }
-        unsafe.sendPacket( new LoginPayloadRequest( id, channel, data ) );
+            unsafe.sendPacket( new LoginPayloadRequest( id, channel, data ) );
+        } );
         return future;
     }
 

@@ -1,6 +1,5 @@
 package net.md_5.bungee.api;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.Setter;
@@ -11,7 +10,7 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
  * A request to connect a server.
  */
 @Getter
-@Builder(builderClassName = "Builder")
+@lombok.Builder(builderClassName = "Builder")
 public class ServerConnectRequest
 {
 

@@ -9,10 +9,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
-import net.md_5.bungee.protocol.ChatChain;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
-import net.md_5.bungee.protocol.SeenMessages;
+import net.md_5.bungee.protocol.data.ChatChain;
+import net.md_5.bungee.protocol.data.SeenMessages;
 
 @Data
 @NoArgsConstructor
