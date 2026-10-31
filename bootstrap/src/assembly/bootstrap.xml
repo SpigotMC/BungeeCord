@@ -60,11 +60,6 @@
                 <include>${project.groupId}:${project.artifactId}</include>
             </includes>
             <unpack>true</unpack>
-            <unpackOptions>
-                <includes>
-                    <include>net/md_5/**</include>
-                </includes>
-            </unpackOptions>
         </dependencySet>
     </dependencySets>
 </assembly>
