@@ -9,7 +9,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
 
 @Getter
 @Setter
@@ -22,7 +21,7 @@ public final class TextComponent extends BaseComponent
 
     /**
      * Converts the old formatting system that used
-     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * {@link net.md_5.bungee.api.chat.ChatColor#COLOR_CHAR} into the new json based
      * system.
      *
      * @param message the text to convert
@@ -35,7 +34,7 @@ public final class TextComponent extends BaseComponent
 
     /**
      * Converts the old formatting system that used
-     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * {@link net.md_5.bungee.api.chat.ChatColor#COLOR_CHAR} into the new json based
      * system.
      *
      * @param message the text to convert
@@ -52,7 +51,7 @@ public final class TextComponent extends BaseComponent
 
     /**
      * Converts the old formatting system that used
-     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * {@link net.md_5.bungee.api.chat.ChatColor#COLOR_CHAR} into the new json based
      * system.
      *
      * @param message the text to convert
@@ -70,7 +69,7 @@ public final class TextComponent extends BaseComponent
 
     /**
      * Converts the old formatting system that used
-     * {@link net.md_5.bungee.api.ChatColor#COLOR_CHAR} into the new json based
+     * {@link net.md_5.bungee.api.chat.ChatColor#COLOR_CHAR} into the new json based
      * system.
      *
      * @param message the text to convert

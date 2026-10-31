@@ -6,8 +6,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import lombok.Data;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.util.Util;
 
 @Data
 public class BootstrapModuleSource implements ModuleSource

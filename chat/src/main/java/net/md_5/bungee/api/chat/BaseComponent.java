@@ -9,7 +9,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ComponentBuilder.FormatRetention;
 
 @Setter
@@ -214,7 +213,7 @@ public abstract class BaseComponent
 
     /**
      * Converts the components to a string that uses the old formatting codes
-     * ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * ({@link net.md_5.bungee.api.chat.ChatColor#COLOR_CHAR}
      *
      * @param components the components to convert
      * @return the string in the old format
@@ -273,7 +272,7 @@ public abstract class BaseComponent
 
     /**
      * Returns the color of this component. This uses the parent's color if this
-     * component doesn't have one. {@link net.md_5.bungee.api.ChatColor#WHITE}
+     * component doesn't have one. {@link net.md_5.bungee.api.chat.ChatColor#WHITE}
      * is returned if no color is found.
      *
      * @return the color of this component
@@ -696,7 +695,7 @@ public abstract class BaseComponent
 
     /**
      * Converts the component to a string that uses the old formatting codes
-     * ({@link net.md_5.bungee.api.ChatColor#COLOR_CHAR}
+     * ({@link net.md_5.bungee.api.chat.ChatColor#COLOR_CHAR}
      *
      * @return the string in the old format
      */

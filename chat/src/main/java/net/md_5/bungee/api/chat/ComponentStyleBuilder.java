@@ -1,7 +1,6 @@
 package net.md_5.bungee.api.chat;
 
 import java.awt.Color;
-import net.md_5.bungee.api.ChatColor;
 
 /**
  * <p>

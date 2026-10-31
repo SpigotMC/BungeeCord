@@ -38,7 +38,6 @@ import java.util.logging.Level;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import net.md_5.bungee.BungeeCord;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.event.ClientConnectEvent;
@@ -52,6 +51,7 @@ import net.md_5.bungee.protocol.Varint21FrameDecoder;
 import net.md_5.bungee.protocol.channel.BungeeChannelInitializer;
 import net.md_5.bungee.protocol.channel.ChannelAcceptor;
 import net.md_5.bungee.util.PacketLimiter;
+import net.md_5.bungee.util.Util;
 
 public class PipelineUtils
 {

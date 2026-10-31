@@ -31,12 +31,11 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.EncryptionUtil;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.Callback;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ServerPing;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ChatColor;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ListenerInfo;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -81,6 +80,7 @@ import net.md_5.bungee.protocol.packet.StatusResponse;
 import net.md_5.bungee.util.AllowedCharacters;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
+import net.md_5.bungee.util.Util;
 
 @RequiredArgsConstructor
 public class InitialHandler extends PacketHandler implements PendingConnection

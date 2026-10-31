@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -15,7 +16,6 @@ import net.md_5.bungee.api.AbstractReconnectHandler;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.util.CaseInsensitiveMap;
 import org.yaml.snakeyaml.Yaml;
 
 public class YamlReconnectHandler extends AbstractReconnectHandler
@@ -25,7 +25,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
     private final File file = new File( "locations.yml" );
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
     /*========================================================================*/
-    private CaseInsensitiveMap<String> data;
+    private Map<String, String> data;
 
     @SuppressWarnings("unchecked")
     public YamlReconnectHandler()
@@ -38,7 +38,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
                 Map map = yaml.loadAs( rd, Map.class );
                 if ( map != null )
                 {
-                    data = new CaseInsensitiveMap<>( map );
+                    data = new HashMap<>( map );
                 }
             }
         } catch ( Exception ex )
@@ -49,7 +49,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
 
         if ( data == null )
         {
-            data = new CaseInsensitiveMap<>();
+            data = new HashMap<>();
         }
     }
 
@@ -70,7 +70,7 @@ public class YamlReconnectHandler extends AbstractReconnectHandler
     private String key(ProxiedPlayer player)
     {
         InetSocketAddress host = player.getPendingConnection().getVirtualHost();
-        return player.getName() + ";" + host.getHostString() + ":" + host.getPort();
+        return ( player.getName() + ";" + host.getHostString() + ":" + host.getPort() ).toLowerCase( Locale.ROOT );
     }
 
     @Override

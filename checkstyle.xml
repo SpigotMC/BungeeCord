@@ -20,6 +20,11 @@
         <property name="message" value="Line has trailing spaces."/>
     </module>
 
+    <!-- See https://checkstyle.sourceforge.io/config_filefilters.html -->
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="module\-info\.java$"/>
+    </module>
+
     <module name="TreeWalker">
         <!-- See https://checkstyle.org/config_javadoc.html -->
         <module name="AtclauseOrder"/>

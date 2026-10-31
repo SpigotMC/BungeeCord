@@ -12,7 +12,6 @@ import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.event.CustomClickEvent;
@@ -43,6 +42,7 @@ import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.protocol.packet.UnsignedClientCommand;
 import net.md_5.bungee.protocol.util.TagUtil;
 import net.md_5.bungee.util.AllowedCharacters;
+import net.md_5.bungee.util.Util;
 
 public class UpstreamBridge extends PacketHandler
 {

@@ -8,7 +8,7 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ChatColor;
 
 @RequiredArgsConstructor
 public class ConciseFormatter extends Formatter

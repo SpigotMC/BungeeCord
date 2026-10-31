@@ -116,7 +116,7 @@
                         <configuration>
                             <archive>
                                 <manifestEntries>
-                                    <Main-Class>net.md_5.bungee.Bootstrap</Main-Class>
+                                    <Main-Class>net.md_5.bungee.bootstrap.Bootstrap</Main-Class>
                                     <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
                                 </manifestEntries>
                             </archive>

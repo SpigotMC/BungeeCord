@@ -24,7 +24,7 @@ import net.md_5.bungee.api.dialog.DialogListDialog;
 import net.md_5.bungee.api.dialog.MultiActionDialog;
 import net.md_5.bungee.api.dialog.NoticeDialog;
 import net.md_5.bungee.api.dialog.ServerLinksDialog;
-import net.md_5.bungee.chat.VersionedComponentSerializer;
+import net.md_5.bungee.serializer.chat.VersionedComponentSerializer;
 
 @RequiredArgsConstructor
 public class DialogSerializer implements JsonDeserializer<Dialog>, JsonSerializer<Dialog>

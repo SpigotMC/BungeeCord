@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import net.md_5.bungee.api.ChatColor;
 
 /**
  * Represents a style that may be applied to a {@link BaseComponent}.

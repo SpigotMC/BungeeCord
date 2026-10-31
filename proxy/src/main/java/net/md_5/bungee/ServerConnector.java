@@ -13,9 +13,9 @@ import java.util.UUID;
 import java.util.logging.Level;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ChatColor;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerConnectedEvent;
@@ -63,6 +63,7 @@ import net.md_5.bungee.protocol.util.Either;
 import net.md_5.bungee.util.AddressUtil;
 import net.md_5.bungee.util.BufUtil;
 import net.md_5.bungee.util.QuietException;
+import net.md_5.bungee.util.Util;
 
 @RequiredArgsConstructor
 public class ServerConnector extends PacketHandler

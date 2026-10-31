@@ -5,7 +5,7 @@ import java.util.logging.LogRecord;
 import java.util.regex.Pattern;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import net.md_5.bungee.api.ChatColor;
+import net.md_5.bungee.api.chat.ChatColor;
 import org.jline.jansi.Ansi;
 import org.jline.reader.LineReader;
 

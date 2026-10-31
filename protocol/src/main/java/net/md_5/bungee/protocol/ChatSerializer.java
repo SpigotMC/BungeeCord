@@ -1,7 +1,7 @@
 package net.md_5.bungee.protocol;
 
-import net.md_5.bungee.chat.ChatVersion;
-import net.md_5.bungee.chat.VersionedComponentSerializer;
+import net.md_5.bungee.serializer.chat.ChatVersion;
+import net.md_5.bungee.serializer.chat.VersionedComponentSerializer;
 
 public class ChatSerializer
 {

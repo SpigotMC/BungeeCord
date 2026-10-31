@@ -1,5 +1,6 @@
 package net.md_5.bungee.api;
 
+import com.google.common.primitives.UnsignedLongs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -7,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -52,7 +52,7 @@ public class ServerPing
         private String name;
         private UUID uniqueId;
 
-        private static final UUID md5UUID = Util.getUUID( "af74a02d19cb445bb07f6866a861f783" );
+        private static final UUID md5UUID = UUID.fromString( "af74a02d-19cb-445b-b07f-6866a861f783" );
 
         public PlayerInfo(String name, String id)
         {
@@ -64,7 +64,7 @@ public class ServerPing
         {
             try
             {
-                uniqueId = Util.getUUID( id );
+                uniqueId = new UUID( UnsignedLongs.parseUnsignedLong( id.substring( 0, 16 ), 16 ), UnsignedLongs.parseUnsignedLong( id.substring( 16 ), 16 ) ); // See net.md_5.bungee.util.Util
             } catch ( Exception e )
             {
                 // Fallback on a valid uuid otherwise Minecraft complains

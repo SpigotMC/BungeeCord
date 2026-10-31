@@ -28,7 +28,6 @@ import net.md_5.bungee.ServerConnection;
 import net.md_5.bungee.ServerConnection.KeepAliveData;
 import net.md_5.bungee.ServerConnector;
 import net.md_5.bungee.UserConnection;
-import net.md_5.bungee.Util;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -77,6 +76,7 @@ import net.md_5.bungee.protocol.packet.ServerData;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
+import net.md_5.bungee.util.Util;
 
 @RequiredArgsConstructor
 public class DownstreamBridge extends PacketHandler

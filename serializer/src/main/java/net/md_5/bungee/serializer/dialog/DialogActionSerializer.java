@@ -17,7 +17,7 @@ import net.md_5.bungee.api.dialog.action.Action;
 import net.md_5.bungee.api.dialog.action.CustomClickAction;
 import net.md_5.bungee.api.dialog.action.RunCommandAction;
 import net.md_5.bungee.api.dialog.action.StaticAction;
-import net.md_5.bungee.chat.ClickEventSerializer;
+import net.md_5.bungee.serializer.chat.ClickEventSerializer;
 
 public class DialogActionSerializer implements JsonDeserializer<Action>, JsonSerializer<Action>
 {
