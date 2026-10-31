@@ -355,7 +355,7 @@ public final class PluginManager
         {
             try
             {
-                URLClassLoader loader = new PluginClassloader( proxy, plugin, plugin.getFile(), ( libraryLoader != null ) ? libraryLoader.createLoader( plugin ) : null );
+                URLClassLoader loader = new PluginClassloader( proxy, plugin, plugin.getFile(), getClass().getClassLoader(), ( libraryLoader != null ) ? libraryLoader.createLoader( plugin ) : null );
                 Class<?> main = loader.loadClass( plugin.getMain() );
                 Plugin clazz = (Plugin) main.getDeclaredConstructor().newInstance();
 

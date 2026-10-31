@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,19 +26,12 @@ public class ModuleManager
 
     public ModuleManager()
     {
-        knownSources.put( "jenkins", new JenkinsModuleSource() );
+        knownSources.put( "bootstrap", new BootstrapModuleSource() );
     }
 
     public void load(ProxyServer proxy, File moduleDirectory) throws Exception
     {
         moduleDirectory.mkdir();
-
-        ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
-        if ( bungeeVersion == null )
-        {
-            proxy.getLogger().warning( "Couldn't detect bungee version. Custom build?" );
-            return;
-        }
 
         List<ModuleSpec> modules = new ArrayList<>();
         File configFile = new File( "modules.yml" );
@@ -65,26 +57,33 @@ public class ModuleManager
         }
         // End yaml
 
+        int version = ( config.containsKey( "version" ) ) ? (int) config.get( "version" ) : 0;
         List<String> defaults = new ArrayList<>();
         Object readModules = config.get( "modules" );
         if ( readModules != null )
         {
-            defaults.addAll( (Collection) readModules );
+            for ( String moduleLine : (List<String>) readModules )
+            {
+                if ( version < 3 )
+                {
+                    moduleLine = moduleLine.replace( "jenkins://", "bootstrap://" );
+                }
+                defaults.add( moduleLine );
+            }
         }
-        int version = ( config.containsKey( "version" ) ) ? (int) config.get( "version" ) : 0;
         switch ( version )
         {
             case 0:
-                defaults.add( "jenkins://cmd_alert" );
-                defaults.add( "jenkins://cmd_find" );
-                defaults.add( "jenkins://cmd_list" );
-                defaults.add( "jenkins://cmd_send" );
-                defaults.add( "jenkins://cmd_server" );
+                defaults.add( "bootstrap://cmd_alert" );
+                defaults.add( "bootstrap://cmd_find" );
+                defaults.add( "bootstrap://cmd_list" );
+                defaults.add( "bootstrap://cmd_send" );
+                defaults.add( "bootstrap://cmd_server" );
             case 1:
-                defaults.add( "jenkins://reconnect_yaml" );
+                defaults.add( "bootstrap://reconnect_yaml" );
         }
         config.put( "modules", defaults );
-        config.put( "version", 2 );
+        config.put( "version", 3 );
 
         try ( FileWriter wr = new FileWriter( configFile ) )
         {
@@ -113,11 +112,17 @@ public class ModuleManager
             proxy.getLogger().info( "Discovered module: " + spec );
         }
 
+        ModuleVersion bungeeVersion = ModuleVersion.parse( proxy.getVersion() );
+        if ( bungeeVersion == null )
+        {
+            proxy.getLogger().warning( "Couldn't detect bungee version. Custom build?" );
+        }
+
         for ( ModuleSpec module : modules )
         {
             ModuleVersion moduleVersion = ( module.getFile().exists() ) ? getVersion( module.getFile() ) : null;
 
-            if ( !bungeeVersion.equals( moduleVersion ) )
+            if ( bungeeVersion == null || !bungeeVersion.equals( moduleVersion ) )
             {
                 proxy.getLogger().info( "Attempting to update plugin from " + moduleVersion + " to " + bungeeVersion );
                 module.getProvider().retrieve( module, bungeeVersion );

@@ -45,12 +45,12 @@ final class PluginClassloader extends URLClassLoader
         ClassLoader.registerAsParallelCapable();
     }
 
-    public PluginClassloader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader libraryLoader) throws IOException
+    public PluginClassloader(ProxyServer proxy, PluginDescription desc, File file, ClassLoader parent, ClassLoader libraryLoader) throws IOException
     {
         super( new URL[]
         {
             file.toURI().toURL()
-        } );
+        }, parent );
         this.proxy = proxy;
         this.desc = desc;
         this.jar = new JarFile( file );

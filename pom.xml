@@ -77,6 +77,7 @@
     <properties>
         <build.number>unknown</build.number>
         <lombok.version>1.18.48</lombok.version>
+        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -280,6 +281,18 @@
                         <version>1.12.1</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Implementation-Version>${describe}</Implementation-Version>
+                            <Specification-Version>${maven.build.timestamp}</Specification-Version>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
             </plugin>
         </plugins>
     </build>

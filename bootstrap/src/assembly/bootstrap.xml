@@ -1,0 +1,70 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+
+    <id>bootstrap</id>
+
+    <formats>
+        <format>jar</format>
+    </formats>
+
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <files>
+        <file>
+            <fileMode>0644</fileMode>
+            <destName>libraries.list</destName>
+            <outputDirectory>META-INF</outputDirectory>
+            <source>${project.build.directory}/dependencies-checksums.sha</source>
+        </file>
+    </files>
+
+    <fileSets>
+        <fileSet>
+            <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
+            <directory>${project.basedir}/src/assembly/META-INF</directory>
+            <filtered>true</filtered>
+            <outputDirectory>META-INF</outputDirectory>
+        </fileSet>
+    </fileSets>
+
+    <dependencySets>
+        <!-- libraries -->
+        <dependencySet>
+            <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
+            <excludes>
+                <exclude>${project.groupId}:bungeecord-module-*</exclude>
+            </excludes>
+            <outputDirectory>META-INF/libraries</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+        </dependencySet>
+
+        <!-- modules -->
+        <dependencySet>
+            <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
+            <includes>
+                <include>${project.groupId}:bungeecord-module-*</include>
+            </includes>
+            <outputDirectory>META-INF/modules</outputDirectory>
+            <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+        </dependencySet>
+
+        <!-- bootstrap -->
+        <dependencySet>
+            <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
+            <includes>
+                <include>${project.groupId}:${project.artifactId}</include>
+            </includes>
+            <unpack>true</unpack>
+            <unpackOptions>
+                <includes>
+                    <include>net/md_5/**</include>
+                </includes>
+            </unpackOptions>
+        </dependencySet>
+    </dependencySets>
+</assembly>

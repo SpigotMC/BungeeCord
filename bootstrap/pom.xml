@@ -16,14 +16,12 @@
     <packaging>jar</packaging>
 
     <name>BungeeCord-Bootstrap</name>
-    <description>Java 1.6 loader for BungeeCord</description>
+    <description>Java loader for BungeeCord</description>
 
     <properties>
         <skipPublishing>true</skipPublishing>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <maven.compiler.release>11</maven.compiler.release>
-        <maven.build.timestamp.format>yyyyMMdd</maven.build.timestamp.format>
     </properties>
 
     <dependencies>
@@ -33,50 +31,104 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-cmd-alert</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-cmd-find</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-cmd-kick</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-cmd-list</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-cmd-send</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-cmd-server</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.md-5</groupId>
+            <artifactId>bungeecord-module-reconnect-yaml</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <finalName>BungeeCord</finalName>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.5.1</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Main-Class>net.md_5.bungee.Bootstrap</Main-Class> 
-                            <Implementation-Version>${describe}</Implementation-Version>
-                            <Specification-Version>${maven.build.timestamp}</Specification-Version>
-                            <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.6.2</version>
+                <groupId>net.nicoulaj.maven.plugins</groupId>
+                <artifactId>checksum-maven-plugin</artifactId>
+                <version>1.11</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>shade</goal>
+                            <goal>artifacts</goal>
+                            <goal>dependencies</goal>
                         </goals>
+                        <configuration>
+                            <algorithms>
+                                <algorithm>SHA-256</algorithm>
+                            </algorithms>
+                            <quiet>true</quiet>
+                            <scopes>
+                                <scope>compile</scope>
+                                <scope>runtime</scope>
+                            </scopes>
+                            <shasumSummary>true</shasumSummary>
+                            <transitive>true</transitive>
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>**/*.java</exclude>
-                                <exclude>**/*.SF</exclude>
-                                <exclude>**/*.DSA</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.8.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <archive>
+                                <manifestEntries>
+                                    <Main-Class>net.md_5.bungee.Bootstrap</Main-Class>
+                                    <Enable-Native-Access>ALL-UNNAMED</Enable-Native-Access>
+                                </manifestEntries>
+                            </archive>
+                            <attach>false</attach>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/assembly/bootstrap.xml</descriptor>
+                            </descriptors>
+                            <finalName>BungeeCord</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
