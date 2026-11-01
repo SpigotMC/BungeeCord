@@ -875,30 +875,29 @@ public class DownstreamBridge extends PacketHandler
     public void handle(ServerLinks serverLinks) throws Exception
     {
         ServerSendServerLinksEvent event = new ServerSendServerLinksEvent( con, server.getInfo() );
-        List<ServerLink> original = toAPIServerLinks( serverLinks.getLinks() );
-        event.setServerLinks( original );
-        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
-        {
-            // assume modified and send new links
-            con.sendServerLinks( event.getServerLinks() );
-            throw CancelSendSignal.INSTANCE;
-        }
-    }
-
-    private List<ServerLink> toAPIServerLinks(ServerLinks.Link[] links)
-    {
-        List<ServerLink> ret = new ArrayList<>();
-        for ( ServerLinks.Link link : links )
+        List<ServerLink> apiLinks = new ArrayList<>();
+        for ( ServerLinks.Link link : serverLinks.getLinks() )
         {
             if ( link.getType().isLeft() )
             {
-                ret.add( new ServerLink( ServerLink.LinkType.values()[ link.getType().getLeft() ], link.getUrl() ) );
+                apiLinks.add( new ServerLink( ServerLink.LinkType.values()[ link.getType().getLeft() ], link.getUrl() ) );
             } else
             {
-                ret.add( new ServerLink( link.getType().getRight(), link.getUrl() ) );
+                apiLinks.add( new ServerLink( link.getType().getRight(), link.getUrl() ) );
             }
         }
-        return ret;
+        event.setServerLinks( apiLinks );
+        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
+        {
+            // do not send links if canceled
+            throw CancelSendSignal.INSTANCE;
+        }
+        if ( !event.getServerLinks().equals( apiLinks ) )
+        {
+            // the links have changed, resend a new packet
+            con.sendServerLinks( event.getServerLinks() );
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override
