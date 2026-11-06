@@ -19,5 +19,13 @@ jobs:
       with:
         distribution: zulu
         java-version: ${{ matrix.java }}
+        cache: 'maven'
     - run: java -version && mvn --version
     - run: mvn --activate-profiles dist --no-transfer-progress package
+    - uses: actions/upload-artifact@v7
+      if: matrix.java == 17
+      with:
+        name: BungeeCord
+        path: bootstrap/target/BungeeCord.jar
+        if-no-files-found: error
+        archive: false

@@ -1,0 +1,97 @@
+name: Maven Release
+
+on:
+  schedule:
+    - cron: '30 9 * * 6'
+      timezone: 'Australia/Melbourne'
+  workflow_dispatch:
+
+concurrency:
+  group: release
+
+jobs:
+  check-commits:
+    runs-on: ubuntu-24.04
+    outputs:
+      has_new_commits: ${{ steps.check.outputs.has_new_commits }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Check for commits since last release
+        id: check
+        run: |
+          # Get the latest tag name across all branches
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No previous release tags found. Assuming new commits exist."
+            echo "has_new_commits=true" >> $GITHUB_OUTPUT
+          else
+            # Count commits between the latest tag and current HEAD
+            COMMITS_COUNT=$(git rev-list --count ${LATEST_TAG}..HEAD)
+            echo "Commits since last release ($LATEST_TAG): $COMMITS_COUNT"
+
+            if [ "$COMMITS_COUNT" -gt 0 ]; then
+              echo "has_new_commits=true" >> $GITHUB_OUTPUT
+            else
+              echo "has_new_commits=false" >> $GITHUB_OUTPUT
+            fi
+          fi
+
+  build:
+    needs: check-commits
+    if: ${{ needs.check-commits.outputs.has_new_commits == 'true' }}
+    environment: release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+    - name: Set build number
+      env:
+        BUILD_NUMBER: ${{ vars.BUILD_NUMBER }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      run: |
+        BUILD_NUMBER_OLD=${BUILD_NUMBER:-0}
+        BUILD_NUMBER_NEW=$((BUILD_NUMBER_OLD + 1))
+
+        echo "Incremented BUILD_NUMBER FROM $BUILD_NUMBER_OLD to $BUILD_NUMBER_NEW"
+
+        gh variable set BUILD_NUMBER --body "$BUILD_NUMBER_NEW" --env release --repo "$GITHUB_REPOSITORY"
+        echo "BUILD_NUMBER=$BUILD_NUMBER_NEW" >> $GITHUB_ENV
+    - uses: actions/checkout@v7
+      with:
+        fetch-depth: 0
+    - uses: actions/setup-java@v6
+      with:
+        distribution: zulu
+        java-version: 17
+        mvn-server-credentials: |
+          central-portal-snapshots:MAVEN_USERNAME:MAVEN_PASSWORD
+        mvn-server-repository-origins: |
+          central-portal-snapshots:https://central.sonatype.com
+    - run: java -version && mvn --version
+    - run: mvn -Dbuild.number=${BUILD_NUMBER} --activate-profiles dist --no-transfer-progress package
+      env:
+        MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+    - uses: actions/upload-artifact@v7
+      with:
+        name: BungeeCord
+        path: bootstrap/target/BungeeCord.jar
+        if-no-files-found: error
+        archive: false
+    - name: Create GitHub release
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        NOTES_FILE="$RUNNER_TEMP/changelog.md"
+        RELEASE_TAG="build/b$BUILD_NUMBER"
+
+        echo "## What's Changed" > $NOTES_FILE
+        git log --reverse --pretty="* %h: %s" $(git describe --tags --abbrev=0)..HEAD >> $NOTES_FILE
+        echo -e "\n**Full Changelog**: https://github.com/SpigotMC/BungeeCord/commits/$RELEASE_TAG" >> $NOTES_FILE
+
+        gh release create $RELEASE_TAG bootstrap/target/BungeeCord.jar --fail-on-no-commits --notes-file $NOTES_FILE --target $(git rev-parse HEAD) --title "BungeeCord Build $BUILD_NUMBER"
