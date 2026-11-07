@@ -77,12 +77,6 @@ jobs:
       env:
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-    - uses: actions/upload-artifact@v7
-      with:
-        name: BungeeCord
-        path: bootstrap/target/BungeeCord.jar
-        if-no-files-found: error
-        archive: false
     - name: Create GitHub release
       env:
         GH_TOKEN: ${{ github.token }}
