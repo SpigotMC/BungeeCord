@@ -11,10 +11,6 @@ updates:
         patterns:
           - "*"
     ignore:
-        # Synchronised with Minecraft
-      - dependency-name: "com.google.code.gson:gson"
-        # Synchronised with Minecraft
-      - dependency-name: "com.google.guava:guava"
         # Requires Java 21
       - dependency-name: "com.puppycrawl.tools:checkstyle"
         update-types: ["version-update:semver-major"]
