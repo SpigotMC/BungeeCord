@@ -2,7 +2,7 @@ name: Maven Release
 
 on:
   schedule:
-    - cron: '30 9 * * 6'
+    - cron: '30 6 * * 6'
       timezone: 'Australia/Melbourne'
   workflow_dispatch:
 
