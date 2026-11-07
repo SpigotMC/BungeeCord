@@ -18,9 +18,6 @@ updates:
         # Requires Java 21
       - dependency-name: "com.puppycrawl.tools:checkstyle"
         update-types: ["version-update:semver-major"]
-        # Requires Java 17
-      - dependency-name: "org.apache.maven:maven-resolver-provider"
-        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
