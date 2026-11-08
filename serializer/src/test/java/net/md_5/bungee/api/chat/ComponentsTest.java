@@ -10,7 +10,9 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import net.md_5.bungee.api.chat.hover.content.Entity;
 import net.md_5.bungee.api.chat.hover.content.Text;
+import net.md_5.bungee.chat.ChatVersion;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.md_5.bungee.chat.VersionedComponentSerializer;
 import org.junit.jupiter.api.Test;
 
 public class ComponentsTest
@@ -439,6 +441,18 @@ public class ComponentsTest
         BaseComponent[] reparsed = ComponentSerializer.parse( text );
 
         assertArrayEquals( component, reparsed );
+    }
+
+    @Test
+    public void testVersionedScoreSerialization()
+    {
+        ScoreComponent score = new ScoreComponent( "Outfluencer", "lol" );
+        score.setValue( "20" );
+
+        assertEquals( "{\"score\":{\"name\":\"Outfluencer\",\"objective\":\"lol\",\"value\":\"20\"}}",
+                VersionedComponentSerializer.forVersion( ChatVersion.V1_16 ).toString( score ) );
+        assertEquals( "{\"text\":\"20\"}",
+                VersionedComponentSerializer.forVersion( ChatVersion.V1_21_5 ).toString( score ) );
     }
 
     @Test
