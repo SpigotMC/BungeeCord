@@ -56,6 +56,13 @@ public class ScoreComponentSerializer extends BaseComponentSerializer implements
     {
         JsonObject root = new JsonObject();
         serialize( root, component, context );
+        if ( serializer.getVersion() == ChatVersion.V1_21_5 )
+        {
+            // Modern text components require score values to be resolved before serialization.
+            root.addProperty( "text", component.getValue() );
+            return root;
+        }
+
         JsonObject json = new JsonObject();
         json.addProperty( "name", component.getName() );
         json.addProperty( "objective", component.getObjective() );
