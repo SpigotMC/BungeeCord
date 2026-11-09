@@ -382,6 +382,18 @@ public class ServerConnector extends PacketHandler
                         user.unsafe().sendPacket( new BundleDelimiter() );
                     }
                     user.unsafe().sendPacket( new StartConfiguration() );
+                } else
+                {
+                    // we can't go further here, the client may already been half configured,
+                    // just stop here otherwise the client will throw an exception or deadlock
+                    // seems like resetting half configured clients is not possible, we could impl
+                    // full config state emulation and add the missing data of the half configured client
+                    // otherwise finishing the state will result in a disconnect
+                    // also letting the next server configure the client further will result in a clientside disconnect
+                    // as the same  registry entries are added multiple times
+                    obsolete = true;
+                    ch.close();
+                    throw CancelSendSignal.INSTANCE;
                 }
             } else
             {
