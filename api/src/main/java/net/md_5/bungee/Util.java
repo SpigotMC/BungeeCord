@@ -1,6 +1,7 @@
 package net.md_5.bungee;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Strings;
 import com.google.common.primitives.UnsignedLongs;
 import io.netty.channel.unix.DomainSocketAddress;
 import java.net.InetSocketAddress;
@@ -137,5 +138,10 @@ public class Util
     public static UUID getUUID(String uuid)
     {
         return new UUID( UnsignedLongs.parseUnsignedLong( uuid.substring( 0, 16 ), 16 ), UnsignedLongs.parseUnsignedLong( uuid.substring( 16 ), 16 ) );
+    }
+
+    public static String undashUUID(UUID uuid)
+    {
+        return Strings.padStart( Long.toHexString( uuid.getMostSignificantBits() ), 16, '0' ) + Strings.padStart( Long.toHexString( uuid.getLeastSignificantBits() ), 16, '0' );
     }
 }
