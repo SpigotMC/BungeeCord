@@ -8,12 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import net.md_5.bungee.chat.TranslationRegistry;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public final class TranslatableComponent extends BaseComponent
@@ -228,4 +226,28 @@ public final class TranslatableComponent extends BaseComponent
             builder.append( trans.substring( position, trans.length() ) );
         }
     }
+
+    @Override
+    String toStringName()
+    {
+        return "Translatable";
+    }
+
+    @Override
+    boolean toString(StringBuilder builder, boolean comma)
+    {
+        if ( comma ) builder.append( ", " );
+        comma = true;
+        builder.append( "translate=" ).append( translate );
+        if ( with != null )
+        {
+            builder.append( ", with=" ).append( with );
+        }
+        if ( fallback != null )
+        {
+            builder.append( ", fallback=" ).append( fallback );
+        }
+        return super.toString( builder, comma );
+    }
+
 }
