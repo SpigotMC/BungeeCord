@@ -54,7 +54,7 @@ public class EventPriorityTest
         latch.countDown();
     }
 
-    public static class PriorityTestEvent
+    public static class PriorityTestEvent implements EventBusEvent
     {
     }
 
