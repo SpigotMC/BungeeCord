@@ -22,6 +22,7 @@ import java.util.Random;
 import java.util.UUID;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import net.md_5.bungee.jni.NativeCode;
 import net.md_5.bungee.jni.cipher.BungeeCipher;
@@ -128,6 +129,25 @@ public class EncryptionUtil
         BungeeCipher cipher = nativeFactory.newInstance();
 
         cipher.init( forEncryption, shared );
+        return cipher;
+    }
+
+    /**
+     * Creates a cipher using a separate initialization vector, as required by
+     * the 26.4+ session key exchange. The native cipher always uses the key as
+     * initialization vector, so this always uses the Java implementation.
+     *
+     * @param forEncryption whether to encrypt or decrypt
+     * @param key the AES key
+     * @param iv the initialization vector
+     * @return the initialized cipher
+     * @throws GeneralSecurityException if the cipher could not be initialized
+     */
+    public static BungeeCipher getCipher(boolean forEncryption, SecretKey key, IvParameterSpec iv) throws GeneralSecurityException
+    {
+        BungeeCipher cipher = new JavaCipher();
+
+        cipher.init( forEncryption, key, iv );
         return cipher;
     }
 

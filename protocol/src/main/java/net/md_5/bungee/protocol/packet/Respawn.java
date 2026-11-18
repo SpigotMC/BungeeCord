@@ -52,7 +52,7 @@ public class Respawn extends DefinedPacket
         {
             dimension = buf.readInt();
         }
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 && protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
         {
             seed = buf.readLong();
         }
@@ -76,7 +76,10 @@ public class Respawn extends DefinedPacket
             {
                 previousGameMode = buf.readUnsignedByte();
             }
-            debug = buf.readBoolean();
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                debug = buf.readBoolean();
+            }
             flat = buf.readBoolean();
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_20_2 )
             {
@@ -127,7 +130,7 @@ public class Respawn extends DefinedPacket
         {
             buf.writeInt( ( (Integer) dimension ) );
         }
-        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 )
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_15 && protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
         {
             buf.writeLong( seed );
         }
@@ -151,7 +154,10 @@ public class Respawn extends DefinedPacket
             {
                 buf.writeByte( previousGameMode );
             }
-            buf.writeBoolean( debug );
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                buf.writeBoolean( debug );
+            }
             buf.writeBoolean( flat );
             if ( protocolVersion < ProtocolConstants.MINECRAFT_1_20_2 )
             {

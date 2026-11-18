@@ -23,17 +23,21 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import com.mojang.brigadier.tree.RootCommandNode;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.nbt.Tag;
 import net.md_5.bungee.protocol.AbstractPacketHandler;
 import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.ProtocolConstants;
@@ -84,8 +88,7 @@ public class Commands extends DefinedPacket
 
                     if ( ( flags & FLAG_SUGGESTIONS ) != 0 )
                     {
-                        String suggster = readString( buf );
-                        ( (RequiredArgumentBuilder) argumentBuilder ).suggests( SuggestionRegistry.getProvider( suggster ) );
+                        ( (RequiredArgumentBuilder) argumentBuilder ).suggests( SuggestionRegistry.read( buf, protocolVersion ) );
                     }
                     break;
                 default:
@@ -213,7 +216,7 @@ public class Commands extends DefinedPacket
 
                 if ( argumentNode.getCustomSuggestions() != null )
                 {
-                    writeString( SuggestionRegistry.getKey( argumentNode.getCustomSuggestions() ), buf );
+                    SuggestionRegistry.write( argumentNode.getCustomSuggestions(), buf, protocolVersion );
                 }
             }
         }
@@ -315,6 +318,7 @@ public class Commands extends DefinedPacket
         private static final ArgumentSerializer[] IDS_1_21_5;
         private static final ArgumentSerializer[] IDS_1_21_6;
         private static final ArgumentSerializer[] IDS_26_3;
+        private static final ArgumentSerializer[] IDS_26_4;
         private static final Map<Class<?>, ProperArgumentSerializer<?>> PROPER_PROVIDERS = new HashMap<>();
         //
         private static final ArgumentSerializer<Void> VOID = new ArgumentSerializer<Void>()
@@ -514,9 +518,39 @@ public class Commands extends DefinedPacket
             }
 
             @Override
-            protected int getIntKey()
+            protected void write(ByteBuf buf, StringArgumentType t, int protocolVersion)
+            {
+                // 26.4 has a dedicated argument type without payload for every string type
+                if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+                {
+                    write( buf, t );
+                }
+            }
+
+            @Override
+            protected int getIntKey(int protocolVersion)
             {
                 return 5;
+            }
+
+            @Override
+            protected int getIntKey(int protocolVersion, StringArgumentType t)
+            {
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_4 )
+                {
+                    switch ( t.getType() )
+                    {
+                        case SINGLE_WORD:
+                            return 62;
+                        case QUOTABLE_PHRASE:
+                            return 42;
+                        case GREEDY_PHRASE:
+                            return 20;
+                        default:
+                            throw new IllegalArgumentException( "Unknown string type " + t.getType() );
+                    }
+                }
+                return getIntKey( protocolVersion );
             }
 
             @Override
@@ -525,6 +559,9 @@ public class Commands extends DefinedPacket
                 return "brigadier:string";
             }
         };
+        private static final ArgumentSerializer<StringArgumentType> WORD = new FixedStringSerializer( StringArgumentType.word() );
+        private static final ArgumentSerializer<StringArgumentType> QUOTED_STRING = new FixedStringSerializer( StringArgumentType.string() );
+        private static final ArgumentSerializer<StringArgumentType> GREEDY_STRING = new FixedStringSerializer( StringArgumentType.greedyString() );
         private static final ArgumentSerializer<String> RAW_STRING = new ArgumentSerializer<String>()
         {
             @Override
@@ -537,6 +574,39 @@ public class Commands extends DefinedPacket
             protected void write(ByteBuf buf, String t)
             {
                 DefinedPacket.writeString( t, buf );
+            }
+        };
+        private static final ArgumentSerializer<Integer> VAR_INT = new ArgumentSerializer<Integer>()
+        {
+            @Override
+            protected Integer read(ByteBuf buf)
+            {
+                return readVarInt( buf );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, Integer t)
+            {
+                writeVarInt( t, buf );
+            }
+        };
+        private static final ArgumentSerializer<PatternValue> PATTERN = new ArgumentSerializer<PatternValue>()
+        {
+            @Override
+            protected PatternValue read(ByteBuf buf)
+            {
+                String pattern = readString( buf );
+                // optional error message component
+                Tag errorMessage = readNullable( (buf0) -> readTag( buf0, ProtocolConstants.MINECRAFT_26_4 ), buf );
+
+                return new PatternValue( pattern, errorMessage );
+            }
+
+            @Override
+            protected void write(ByteBuf buf, PatternValue t)
+            {
+                writeString( t.getPattern(), buf );
+                writeNullable( t.getErrorMessage(), (tag, buf0) -> writeTag( tag, buf0, ProtocolConstants.MINECRAFT_26_4 ), buf );
             }
         };
 
@@ -1047,6 +1117,74 @@ public class Commands extends DefinedPacket
                 get( "minecraft:swing_animation", VOID ),
                 get( "minecraft:uuid", VOID )
             };
+
+            // 26.4 reworked the argument types, they are now sorted by name and all live in the minecraft namespace
+            IDS_26_4 = new ArgumentSerializer[]
+            {
+                get( "minecraft:angle", VOID ),
+                get( "minecraft:block_pos", VOID ),
+                get( "minecraft:block_predicate", VOID ),
+                get( "minecraft:block_state", VOID ),
+                get( "minecraft:bool", VOID ),
+                get( "minecraft:column_pos", VOID ),
+                get( "minecraft:component", VOID ),
+                get( "minecraft:context_float_provider", VAR_INT ),
+                get( "minecraft:context_int_provider", VAR_INT ),
+                get( "minecraft:dialog", VOID ),
+                get( "minecraft:dimension", VOID ),
+                get( "minecraft:double", DOUBLE_RANGE ),
+                get( "minecraft:entity", BYTE ),
+                get( "minecraft:entity_anchor", VOID ),
+                get( "minecraft:feature", VOID ),
+                get( "minecraft:float", FLOAT_RANGE ),
+                get( "minecraft:float_range", VOID ),
+                get( "minecraft:function", VOID ),
+                get( "minecraft:game_profile", VOID ),
+                get( "minecraft:gamemode", VOID ),
+                get( "minecraft:greedy_string", GREEDY_STRING ),
+                get( "minecraft:heightmap", VOID ),
+                get( "minecraft:hex_color", VOID ),
+                get( "minecraft:int_range", VOID ),
+                get( "minecraft:integer", INTEGER_RANGE ),
+                get( "minecraft:item_predicate", VOID ),
+                get( "minecraft:item_slot", VOID ),
+                get( "minecraft:item_slots", VOID ),
+                get( "minecraft:item_stack", VOID ),
+                get( "minecraft:long", LONG_RANGE ),
+                get( "minecraft:loot_modifier", VAR_INT ),
+                get( "minecraft:loot_predicate", VAR_INT ),
+                get( "minecraft:loot_table", VAR_INT ),
+                get( "minecraft:message", VOID ),
+                get( "minecraft:nbt_compound_tag", VOID ),
+                get( "minecraft:nbt_path", VOID ),
+                get( "minecraft:nbt_tag", VOID ),
+                get( "minecraft:objective", VOID ),
+                get( "minecraft:objective_criteria", VOID ),
+                get( "minecraft:operation", VOID ),
+                get( "minecraft:particle", VOID ),
+                get( "minecraft:pattern", PATTERN ),
+                get( "minecraft:quoted_string", QUOTED_STRING ),
+                get( "minecraft:resource", RAW_STRING ),
+                get( "minecraft:resource_location", VOID ),
+                get( "minecraft:resource_or_tag", RAW_STRING ),
+                get( "minecraft:resource_selector", RAW_STRING ),
+                get( "minecraft:rotation", VOID ),
+                get( "minecraft:score_holder", BOOLEAN ),
+                get( "minecraft:scoreboard_slot", VOID ),
+                get( "minecraft:slot_source", VAR_INT ),
+                get( "minecraft:style", VOID ),
+                get( "minecraft:swing_animation", VOID ),
+                get( "minecraft:swizzle", VOID ),
+                get( "minecraft:team", VOID ),
+                get( "minecraft:team_color", VOID ),
+                get( "minecraft:template_mirror", VOID ),
+                get( "minecraft:template_rotation", VOID ),
+                get( "minecraft:time", INTEGER_RANGE ),
+                get( "minecraft:uuid", VOID ),
+                get( "minecraft:vec2", BOOLEAN ),
+                get( "minecraft:vec3", BOOLEAN ),
+                get( "minecraft:word", WORD )
+            };
         }
 
         private static void register(String name, ArgumentSerializer serializer)
@@ -1068,7 +1206,10 @@ public class Commands extends DefinedPacket
             {
                 key = readVarInt( buf );
 
-                if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
+                if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_4 )
+                {
+                    reader = IDS_26_4[(Integer) key];
+                } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
                 {
                     reader = IDS_26_3[(Integer) key];
                 } else if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_21_6 )
@@ -1112,12 +1253,12 @@ public class Commands extends DefinedPacket
             {
                 if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
                 {
-                    writeVarInt( proper.getIntKey(), buf );
+                    writeVarInt( proper.getIntKey( protocolVersion, arg ), buf );
                 } else
                 {
                     writeString( proper.getKey(), buf );
                 }
-                proper.write( buf, arg );
+                proper.write( buf, arg, protocolVersion );
             } else
             {
                 Preconditions.checkArgument( arg instanceof DummyType, "Non dummy arg " + arg.getClass() );
@@ -1149,18 +1290,54 @@ public class Commands extends DefinedPacket
             }
         }
 
+        @Data
+        private static class PatternValue
+        {
+
+            private final String pattern;
+            private final Tag errorMessage;
+        }
+
         private abstract static class ArgumentSerializer<T>
         {
 
             protected abstract T read(ByteBuf buf);
 
             protected abstract void write(ByteBuf buf, T t);
+
+            protected void write(ByteBuf buf, T t, int protocolVersion)
+            {
+                write( buf, t );
+            }
+        }
+
+        @RequiredArgsConstructor
+        private static class FixedStringSerializer extends ArgumentSerializer<StringArgumentType>
+        {
+
+            private final StringArgumentType type;
+
+            @Override
+            protected StringArgumentType read(ByteBuf buf)
+            {
+                return type;
+            }
+
+            @Override
+            protected void write(ByteBuf buf, StringArgumentType t)
+            {
+            }
         }
 
         private abstract static class ProperArgumentSerializer<T> extends ArgumentSerializer<T>
         {
 
-            protected abstract int getIntKey();
+            protected abstract int getIntKey(int protocolVersion);
+
+            protected int getIntKey(int protocolVersion, T t)
+            {
+                return getIntKey( protocolVersion );
+            }
 
             protected abstract String getKey();
         }
@@ -1172,6 +1349,16 @@ public class Commands extends DefinedPacket
 
         public static final SuggestionProvider ASK_SERVER = new DummyProvider( "minecraft:ask_server" );
         private static final Map<String, SuggestionProvider<DummyProvider>> PROVIDERS = new HashMap<>();
+        // 26.4 sends the suggestion type by registry id rather than by name
+        private static final String LITERAL = "minecraft:literal";
+        private static final String[] IDS_26_4 =
+        {
+            "minecraft:ask_server",
+            "minecraft:available_sounds",
+            "minecraft:summonable_entities",
+            "minecraft:post_effects",
+            LITERAL
+        };
 
         static
         {
@@ -1186,6 +1373,44 @@ public class Commands extends DefinedPacket
         private static void registerDummy(String name)
         {
             PROVIDERS.put( name, new DummyProvider( name ) );
+        }
+
+        private static SuggestionProvider<DummyProvider> read(ByteBuf buf, int protocolVersion)
+        {
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_4 )
+            {
+                int id = readVarInt( buf );
+                Preconditions.checkArgument( id >= 0 && id < IDS_26_4.length, "Unknown completion provider %s", id );
+
+                String key = IDS_26_4[id];
+                if ( key.equals( LITERAL ) )
+                {
+                    return new DummyProvider( key, readStringArray( buf ) );
+                }
+
+                return getProvider( key );
+            }
+
+            return getProvider( readString( buf ) );
+        }
+
+        private static void write(SuggestionProvider<DummyProvider> provider, ByteBuf buf, int protocolVersion)
+        {
+            String key = getKey( provider );
+            if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_4 )
+            {
+                int id = Arrays.asList( IDS_26_4 ).indexOf( key );
+                Preconditions.checkArgument( id >= 0, "Unknown completion provider %s", key );
+
+                writeVarInt( id, buf );
+                if ( key.equals( LITERAL ) )
+                {
+                    writeStringArray( ( (DummyProvider) provider ).literals, buf );
+                }
+            } else
+            {
+                writeString( key, buf );
+            }
         }
 
         private static SuggestionProvider<DummyProvider> getProvider(String key)
@@ -1208,6 +1433,19 @@ public class Commands extends DefinedPacket
         {
 
             private final String key;
+            // only used by minecraft:literal
+            private final List<String> literals;
+
+            private DummyProvider(String key)
+            {
+                this( key, null );
+            }
+
+            private DummyProvider(String key, List<String> literals)
+            {
+                this.key = key;
+                this.literals = literals;
+            }
 
             @Override
             public CompletableFuture<Suggestions> getSuggestions(CommandContext<DummyProvider> context, SuggestionsBuilder builder) throws CommandSyntaxException

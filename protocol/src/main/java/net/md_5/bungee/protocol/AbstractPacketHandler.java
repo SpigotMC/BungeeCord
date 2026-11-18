@@ -1,5 +1,6 @@
 package net.md_5.bungee.protocol;
 
+import net.md_5.bungee.protocol.packet.ApplyOptions;
 import net.md_5.bungee.protocol.packet.BossBar;
 import net.md_5.bungee.protocol.packet.BundleDelimiter;
 import net.md_5.bungee.protocol.packet.Chat;
@@ -30,6 +31,7 @@ import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.OptionsApplied;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PlayerListHeaderFooter;
 import net.md_5.bungee.protocol.packet.PlayerListItem;
@@ -245,6 +247,14 @@ public abstract class AbstractPacketHandler
     }
 
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception
+    {
+    }
+
+    public void handle(ApplyOptions applyOptions) throws Exception
+    {
+    }
+
+    public void handle(OptionsApplied optionsApplied) throws Exception
     {
     }
 

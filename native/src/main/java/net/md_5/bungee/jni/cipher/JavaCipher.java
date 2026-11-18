@@ -45,6 +45,13 @@ public class JavaCipher implements BungeeCipher
     }
 
     @Override
+    public void init(boolean forEncryption, SecretKey key, IvParameterSpec iv) throws GeneralSecurityException
+    {
+        int mode = forEncryption ? Cipher.ENCRYPT_MODE : Cipher.DECRYPT_MODE;
+        cipher.init( mode, key, iv );
+    }
+
+    @Override
     public void cipher(ByteBuf in, ByteBuf out) throws ShortBufferException
     {
         int readableBytes = in.readableBytes();

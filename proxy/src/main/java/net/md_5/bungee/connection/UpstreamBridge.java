@@ -36,6 +36,7 @@ import net.md_5.bungee.protocol.packet.CustomClickAction;
 import net.md_5.bungee.protocol.packet.KeepAlive;
 import net.md_5.bungee.protocol.packet.LoginAcknowledged;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
+import net.md_5.bungee.protocol.packet.OptionsApplied;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StartConfiguration;
 import net.md_5.bungee.protocol.packet.TabCompleteRequest;
@@ -313,8 +314,23 @@ public class UpstreamBridge extends PacketHandler
     @Override
     public void handle(LoginAcknowledged loginAcknowledged) throws Exception
     {
+        if ( con.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_26_4 && con.getCompressionThreshold() >= 0 )
+        {
+            // 26.4+: this is the last packet the client sends uncompressed
+            con.getCh().setInboundCompression( true );
+        }
+
         con.getServer().setFirstLogin( true );
         configureServer();
+    }
+
+    @Override
+    public void handle(OptionsApplied optionsApplied) throws Exception
+    {
+        // this packet is only expected whilst we set up the encryption (it should be handled in the InitialHandler)
+        // we should never pass this to the backend
+        con.disconnect( "Unexpected OptionsApplied" );
+        throw CancelSendSignal.INSTANCE;
     }
 
     @Override
@@ -330,6 +346,8 @@ public class UpstreamBridge extends PacketHandler
         {
             ch.setDecodeProtocol( Protocol.CONFIGURATION );
             ch.write( new LoginAcknowledged() );
+            // 26.4+: the server expects everything after the acknowledgement to be compressed (if it enabled compression)
+            ch.applyPendingOutboundCompression();
             ch.setEncodeProtocol( Protocol.CONFIGURATION );
 
             // send the registered plugin channel as soon as the server is in config state

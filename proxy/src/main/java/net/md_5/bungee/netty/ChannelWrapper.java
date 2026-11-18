@@ -31,6 +31,13 @@ public class ChannelWrapper
     private volatile boolean closed;
     @Getter
     private volatile boolean closing;
+    /**
+     * Compression threshold which has been announced by the remote, but which
+     * is not in use yet (26.4+).
+     */
+    @Getter
+    @Setter
+    private int pendingCompressionThreshold = -1;
 
     public ChannelWrapper(ChannelHandlerContext ctx)
     {
@@ -184,8 +191,18 @@ public class ChannelWrapper
 
     public void setCompressionThreshold(int compressionThreshold)
     {
+        setOutboundCompressionThreshold( compressionThreshold );
+        setInboundCompression( compressionThreshold >= 0 );
+    }
+
+    /**
+     * Sets the compression threshold for packets we send.
+     *
+     * @param compressionThreshold the threshold, negative to disable
+     */
+    public void setOutboundCompressionThreshold(int compressionThreshold)
+    {
         LengthPrependerAndCompressor compressor = ch.pipeline().get( LengthPrependerAndCompressor.class );
-        PacketDecompressor decompressor = ch.pipeline().get( PacketDecompressor.class );
         if ( compressionThreshold >= 0 )
         {
             if ( !compressor.isCompress() )
@@ -193,22 +210,45 @@ public class ChannelWrapper
                 compressor.setCompress( true );
             }
             compressor.setThreshold( compressionThreshold );
-
-            if ( decompressor == null )
-            {
-                addBefore( PipelineUtils.PACKET_DECODER, "decompress", decompressor = new PacketDecompressor() );
-            }
         } else
         {
             compressor.setCompress( false );
-            if ( decompressor != null )
-            {
-                ch.pipeline().remove( "decompress" );
-            }
         }
 
         // disable use of composite buffers if we use natives
         updateComposite();
+    }
+
+    /**
+     * Sets whether packets we receive are in the compressed format.
+     *
+     * @param compression whether to expect the compressed format
+     */
+    public void setInboundCompression(boolean compression)
+    {
+        PacketDecompressor decompressor = ch.pipeline().get( PacketDecompressor.class );
+        if ( compression )
+        {
+            if ( decompressor == null )
+            {
+                addBefore( PipelineUtils.PACKET_DECODER, "decompress", new PacketDecompressor() );
+            }
+        } else if ( decompressor != null )
+        {
+            ch.pipeline().remove( "decompress" );
+        }
+    }
+
+    /**
+     * Starts to compress the packets we send with the threshold previously
+     * announced by the remote, if any.
+     */
+    public void applyPendingOutboundCompression()
+    {
+        if ( pendingCompressionThreshold >= 0 )
+        {
+            setOutboundCompressionThreshold( pendingCompressionThreshold );
+        }
     }
 
     /*
