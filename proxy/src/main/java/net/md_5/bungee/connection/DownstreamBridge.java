@@ -874,7 +874,6 @@ public class DownstreamBridge extends PacketHandler
     @Override
     public void handle(ServerLinks serverLinks) throws Exception
     {
-        ServerSendServerLinksEvent event = new ServerSendServerLinksEvent( con, server.getInfo() );
         List<ServerLink> apiLinks = new ArrayList<>();
         for ( ServerLinks.Link link : serverLinks.getLinks() )
         {
@@ -886,10 +885,14 @@ public class DownstreamBridge extends PacketHandler
                 apiLinks.add( new ServerLink( link.getType().getRight(), link.getUrl() ) );
             }
         }
-        event.setServerLinks( apiLinks );
-        if ( bungee.getPluginManager().callEvent( event ).isCancelled() )
+        // a copy is needed because if event handlers add to the current list
+        // event.getServerLinks().equals will return true
+        // thus not update with the new server links
+        ServerSendServerLinksEvent event = bungee.getPluginManager()
+            .callEvent( new ServerSendServerLinksEvent( con, server.getInfo(), new ArrayList<>( apiLinks ) ) );
+        if ( event.isCancelled() )
         {
-            // do not send links if canceled
+            // do not send links if cancelled
             throw CancelSendSignal.INSTANCE;
         }
         if ( !event.getServerLinks().equals( apiLinks ) )

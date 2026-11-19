@@ -1,8 +1,9 @@
 package net.md_5.bungee.api.event;
 
 import java.util.List;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import net.md_5.bungee.api.ServerLink;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -13,7 +14,8 @@ import net.md_5.bungee.api.plugin.Event;
 /**
  * Called when the server the player is connected to sends server links.
  */
-@Data
+@Getter
+@Setter
 @ToString
 @EqualsAndHashCode(callSuper = false)
 public class ServerSendServerLinksEvent extends Event implements Cancellable
@@ -38,5 +40,12 @@ public class ServerSendServerLinksEvent extends Event implements Cancellable
      * The server links sent.
      */
     private List<ServerLink> serverLinks;
+
+    public ServerSendServerLinksEvent(ProxiedPlayer player, ServerInfo server, List<ServerLink> serverLinks)
+    {
+        this.player = player;
+        this.server = server;
+        this.serverLinks = serverLinks;
+    }
 
 }
