@@ -102,6 +102,17 @@ public class ServerPing
     // create the server ping. Vanilla clients will ignore this.
     private final ModInfo modinfo = new ModInfo();
 
+    /**
+     * Contact details of the server (status-contact-details in the vanilla
+     * server.properties), may be null. Added in Minecraft 26.4.
+     */
+    private String contact;
+
+    public ServerPing(Protocol version, Players players, BaseComponent description, Favicon favicon)
+    {
+        this( version, players, description, favicon, null );
+    }
+
     @Deprecated
     public ServerPing(Protocol version, Players players, String description, String favicon)
     {

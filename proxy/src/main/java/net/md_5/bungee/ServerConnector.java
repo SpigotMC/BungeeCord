@@ -38,6 +38,7 @@ import net.md_5.bungee.protocol.DefinedPacket;
 import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
+import net.md_5.bungee.protocol.packet.ApplyOptions;
 import net.md_5.bungee.protocol.packet.BundleDelimiter;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
@@ -51,6 +52,7 @@ import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.OptionsApplied;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.Respawn;
 import net.md_5.bungee.protocol.packet.ScoreboardObjective;
@@ -162,6 +164,16 @@ public class ServerConnector extends PacketHandler
     public void handle(LoginSuccess loginSuccess) throws Exception
     {
         Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting LOGIN_SUCCESS" );
+        if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_26_4 )
+        {
+            // 26.4+: the server uses the options for everything after this packet,
+            // we do after our LoginAcknowledged (see UpstreamBridge)
+            applyInboundOptions( loginSuccess.getOptions() );
+            if ( !ApplyOptions.isCompression( loginSuccess.getOptions() ) )
+            {
+                ch.setPendingCompressionThreshold( -1 );
+            }
+        }
         if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_2 )
         {
             ServerConnection server = new ServerConnection( ch, target );
@@ -197,7 +209,45 @@ public class ServerConnector extends PacketHandler
     @Override
     public void handle(SetCompression setCompression) throws Exception
     {
-        ch.setCompressionThreshold( setCompression.getThreshold() );
+        if ( user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_26_4 )
+        {
+            // 26.4+: only announces the threshold, the server tells us later when to actually use it
+            ch.setPendingCompressionThreshold( setCompression.getThreshold() );
+        } else
+        {
+            ch.setCompressionThreshold( setCompression.getThreshold() );
+        }
+    }
+
+    @Override
+    public void handle(ApplyOptions applyOptions) throws Exception
+    {
+        Preconditions.checkState( thisState == State.LOGIN_SUCCESS, "Not expecting APPLY_OPTIONS" );
+
+        // The server uses the options for everything after this packet, we do after our confirmation
+        applyInboundOptions( applyOptions.getOptions() );
+        ch.write( new OptionsApplied() );
+        if ( ApplyOptions.isCompression( applyOptions.getOptions() ) )
+        {
+            ch.applyPendingOutboundCompression();
+        }
+    }
+
+    private void applyInboundOptions(byte options)
+    {
+        if ( ApplyOptions.isEncryption( options ) )
+        {
+            throw new QuietException( "Server is online mode!" );
+        }
+        if ( ApplyOptions.isCompression( options ) )
+        {
+            if ( ch.getPendingCompressionThreshold() < 0 )
+            {
+                // the vanilla client compresses everything if no threshold was announced
+                ch.setPendingCompressionThreshold( 0 );
+            }
+            ch.setInboundCompression( true );
+        }
     }
 
     @Override
@@ -386,7 +436,15 @@ public class ServerConnector extends PacketHandler
             } else
             {
                 LoginResult loginProfile = user.getPendingConnection().getLoginProfile();
-                user.unsafe().sendPacket( new LoginSuccess( user.getRewriteId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), user.getSessionId() ) );
+                // 26.4+: the previously announced compression is enabled together with the end of the login
+                boolean compress = user.getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_26_4 && user.getCompressionThreshold() >= 0;
+                user.unsafe().sendPacket( new LoginSuccess( user.getRewriteId(), user.getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), user.getSessionId(), ( compress ) ? ApplyOptions.FLAG_COMPRESSION : 0 ) );
+                if ( compress )
+                {
+                    // The client expects everything after this packet to be compressed,
+                    // its own packets are compressed after LoginAcknowledged (see UpstreamBridge)
+                    user.getCh().setOutboundCompressionThreshold( user.getCompressionThreshold() );
+                }
                 user.getCh().setEncodeProtocol( Protocol.CONFIGURATION );
             }
         }

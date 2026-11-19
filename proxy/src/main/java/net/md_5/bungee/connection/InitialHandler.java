@@ -30,6 +30,7 @@ import lombok.ToString;
 import net.md_5.bungee.BungeeCord;
 import net.md_5.bungee.BungeeServerInfo;
 import net.md_5.bungee.EncryptionUtil;
+import net.md_5.bungee.SessionKeyExchange;
 import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.AbstractReconnectHandler;
@@ -61,6 +62,7 @@ import net.md_5.bungee.protocol.PacketWrapper;
 import net.md_5.bungee.protocol.Protocol;
 import net.md_5.bungee.protocol.ProtocolConstants;
 import net.md_5.bungee.protocol.data.PlayerPublicKey;
+import net.md_5.bungee.protocol.packet.ApplyOptions;
 import net.md_5.bungee.protocol.packet.CookieRequest;
 import net.md_5.bungee.protocol.packet.CookieResponse;
 import net.md_5.bungee.protocol.packet.EncryptionRequest;
@@ -74,6 +76,7 @@ import net.md_5.bungee.protocol.packet.LoginPayloadRequest;
 import net.md_5.bungee.protocol.packet.LoginPayloadResponse;
 import net.md_5.bungee.protocol.packet.LoginRequest;
 import net.md_5.bungee.protocol.packet.LoginSuccess;
+import net.md_5.bungee.protocol.packet.OptionsApplied;
 import net.md_5.bungee.protocol.packet.PingPacket;
 import net.md_5.bungee.protocol.packet.PluginMessage;
 import net.md_5.bungee.protocol.packet.StatusRequest;
@@ -95,6 +98,8 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     @Getter
     private LoginRequest loginRequest;
     private EncryptionRequest request;
+    private SessionKeyExchange keyExchange;
+    private SessionKeyExchange.SessionKeys pendingSessionKeys;
     @Getter
     private PluginMessage brandMessage;
     @Getter
@@ -161,12 +166,12 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     private enum State
     {
 
-        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, FINISHING;
+        HANDSHAKE, STATUS, PING, USERNAME, ENCRYPT, APPLY_OPTIONS, FINISHING;
     }
 
     private boolean canSendKickMessage()
     {
-        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.FINISHING;
+        return thisState == State.USERNAME || thisState == State.ENCRYPT || thisState == State.APPLY_OPTIONS || thisState == State.FINISHING;
     }
 
     @Override
@@ -359,6 +364,16 @@ public class InitialHandler extends PacketHandler implements PendingConnection
             extraDataInHandshake = "\0" + split[1];
         }
 
+        // Starting with 26.4, the client may append connection properties to the host (host?key=value&...).
+        // They are not part of the virtual host, so we take them out and add them back afterwards for the server.
+        String hostProperties = "";
+        if ( handshake.getProtocolVersion() >= ProtocolConstants.MINECRAFT_26_4 && handshake.getHost().contains( "?" ) )
+        {
+            String[] split = handshake.getHost().split( "\\?", 2 );
+            handshake.setHost( split[0] );
+            hostProperties = "?" + split[1];
+        }
+
         // SRV records can end with a . depending on DNS / client.
         if ( handshake.getHost().endsWith( "." ) )
         {
@@ -366,6 +381,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         }
 
         this.virtualHost = InetSocketAddress.createUnresolved( handshake.getHost(), handshake.getPort() );
+        handshake.setHost( handshake.getHost() + hostProperties );
 
         bungee.getPluginManager().callEvent( new PlayerHandshakeEvent( InitialHandler.this, handshake ) );
 
@@ -485,7 +501,20 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                 if ( onlineMode )
                 {
                     thisState = State.ENCRYPT;
-                    unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+                    if ( getVersion() >= ProtocolConstants.MINECRAFT_26_4 )
+                    {
+                        try
+                        {
+                            keyExchange = SessionKeyExchange.create( getVersion(), true );
+                        } catch ( GeneralSecurityException ex )
+                        {
+                            throw new IllegalStateException( "Could not create session key exchange", ex );
+                        }
+                        unsafe().sendPacket( keyExchange.createRequest() );
+                    } else
+                    {
+                        unsafe().sendPacket( request = EncryptionUtil.encryptRequest() );
+                    }
                 } else
                 {
                     thisState = State.FINISHING;
@@ -502,27 +531,39 @@ public class InitialHandler extends PacketHandler implements PendingConnection
     public void handle(final EncryptionResponse encryptResponse) throws Exception
     {
         Preconditions.checkState( thisState == State.ENCRYPT, "Not expecting ENCRYPT" );
-        Preconditions.checkState( EncryptionUtil.check( loginRequest.getPublicKey(), encryptResponse, request ), "Invalid verification" );
 
-        SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
-        BungeeCipher decrypt = EncryptionUtil.getCipher( false, sharedKey );
-        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
-        BungeeCipher encrypt = EncryptionUtil.getCipher( true, sharedKey );
-        ch.addBefore( PipelineUtils.FRAME_PREPENDER_AND_COMPRESS, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
-        // disable use of composite buffers if we use natives
-        ch.updateComposite();
+        String serverHash;
+        if ( getVersion() >= ProtocolConstants.MINECRAFT_26_4 )
+        {
+            Preconditions.checkState( keyExchange != null, "Not in key negotiation" );
+            SessionKeyExchange.SessionKeys sessionKeys = keyExchange.createSessionKeys( loginRequest.getData(), encryptResponse.getPublicKey() );
+            keyExchange = null;
+            // the client signs all negotiated parameters, a mismatch means that someone tampered with the key exchange
+            Preconditions.checkState( MessageDigest.isEqual( sessionKeys.getIntegrityDigest(), encryptResponse.getSignature() ), "Invalid verification" );
+
+            // 26.4+: the client only starts to encrypt once we told it to and it has confirmed this (see ApplyOptions / OptionsApplied)
+            pendingSessionKeys = sessionKeys;
+            serverHash = sessionKeys.getAuthenticationHash();
+        } else
+        {
+            Preconditions.checkState( EncryptionUtil.check( loginRequest.getPublicKey(), encryptResponse, request ), "Invalid verification" );
+
+            SecretKey sharedKey = EncryptionUtil.getSecret( encryptResponse, request );
+            enableEncryption( EncryptionUtil.getCipher( false, sharedKey ), EncryptionUtil.getCipher( true, sharedKey ) );
+
+            MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
+            for ( byte[] bit : new byte[][]
+            {
+                request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
+            } )
+            {
+                sha.update( bit );
+            }
+            serverHash = new BigInteger( sha.digest() ).toString( 16 );
+        }
 
         String encName = URLEncoder.encode( InitialHandler.this.getName(), "UTF-8" );
-
-        MessageDigest sha = MessageDigest.getInstance( "SHA-1" );
-        for ( byte[] bit : new byte[][]
-        {
-            request.getServerId().getBytes( "ISO_8859_1" ), sharedKey.getEncoded(), EncryptionUtil.keys.getPublic().getEncoded()
-        } )
-        {
-            sha.update( bit );
-        }
-        String encodedHash = URLEncoder.encode( new BigInteger( sha.digest() ).toString( 16 ), "UTF-8" );
+        String encodedHash = URLEncoder.encode( serverHash, "UTF-8" );
 
         String preventProxy = ( BungeeCord.getInstance().config.isPreventProxyConnections() && getSocketAddress() instanceof InetSocketAddress ) ? "&ip=" + URLEncoder.encode( getAddress().getAddress().getHostAddress(), "UTF-8" ) : "";
         String authURL = "https://sessionserver.mojang.com/session/minecraft/hasJoined?username=" + encName + "&serverId=" + encodedHash + preventProxy;
@@ -540,7 +581,15 @@ public class InitialHandler extends PacketHandler implements PendingConnection
                         loginProfile = obj;
                         name = obj.getName();
                         uniqueId = Util.getUUID( obj.getId() );
-                        finish();
+                        if ( pendingSessionKeys != null )
+                        {
+                            // continued in handle(OptionsApplied)
+                            thisState = State.APPLY_OPTIONS;
+                            unsafe.sendPacket( new ApplyOptions( ApplyOptions.FLAG_ENCRYPTION ) );
+                        } else
+                        {
+                            finish();
+                        }
                         return;
                     }
                     disconnect( bungee.getTranslation( "offline_mode_player" ) );
@@ -553,6 +602,31 @@ public class InitialHandler extends PacketHandler implements PendingConnection
         };
         thisState = State.FINISHING;
         HttpClient.get( authURL, ch.getHandle().eventLoop(), handler );
+    }
+
+    @Override
+    public void handle(OptionsApplied optionsApplied) throws Exception
+    {
+        Preconditions.checkState( thisState == State.APPLY_OPTIONS && pendingSessionKeys != null, "Not expecting OPTIONS_APPLIED" );
+
+        // This was the last unencrypted packet of the client and it expects everything we send from now on to be encrypted
+        SessionKeyExchange.SessionKeys keys = pendingSessionKeys;
+        pendingSessionKeys = null;
+        enableEncryption(
+                EncryptionUtil.getCipher( false, keys.getClientToServerKey(), keys.getClientToServerIv() ),
+                EncryptionUtil.getCipher( true, keys.getServerToClientKey(), keys.getServerToClientIv() )
+        );
+
+        thisState = State.FINISHING;
+        finish();
+    }
+
+    private void enableEncryption(BungeeCipher decrypt, BungeeCipher encrypt)
+    {
+        ch.addBefore( PipelineUtils.FRAME_DECODER, PipelineUtils.DECRYPT_HANDLER, new CipherDecoder( decrypt ) );
+        ch.addBefore( PipelineUtils.FRAME_PREPENDER_AND_COMPRESS, PipelineUtils.ENCRYPT_HANDLER, new CipherEncoder( encrypt ) );
+        // disable use of composite buffers if we use natives
+        ch.updateComposite();
     }
 
     private void finish()
@@ -621,7 +695,7 @@ public class InitialHandler extends PacketHandler implements PendingConnection
 
                 if ( getVersion() < ProtocolConstants.MINECRAFT_1_20_2 )
                 {
-                    unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), null ) );
+                    unsafe.sendPacket( new LoginSuccess( getRewriteId(), getName(), ( loginProfile == null ) ? null : loginProfile.getProperties(), null, (byte) 0 ) );
                     ch.setProtocol( Protocol.GAME );
                 }
                 finish2();

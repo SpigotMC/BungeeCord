@@ -22,6 +22,7 @@ public class LoginSuccess extends DefinedPacket
     private String username;
     private Property[] properties;
     private UUID sessionId;
+    private byte options;
 
     @Override
     public void read(ByteBuf buf, ProtocolConstants.Direction direction, int protocolVersion)
@@ -46,6 +47,11 @@ public class LoginSuccess extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
         {
             sessionId = readUUID( buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_4 )
+        {
+            // Connection options (see ApplyOptions) which are applied when the login is acknowledged
+            options = buf.readByte();
         }
     }
 
@@ -73,6 +79,10 @@ public class LoginSuccess extends DefinedPacket
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_2 )
         {
             writeUUID( sessionId, buf );
+        }
+        if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_4 )
+        {
+            buf.writeByte( options );
         }
     }
 

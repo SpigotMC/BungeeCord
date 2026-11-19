@@ -12,6 +12,7 @@ import java.net.SocketAddress;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -806,7 +807,11 @@ public final class UserConnection implements ProxiedPlayer
         {
             this.compressionThreshold = compressionThreshold;
             unsafe.sendPacket( new SetCompression( compressionThreshold ) );
-            ch.setCompressionThreshold( compressionThreshold );
+            // 26.4+: the threshold is only announced here, compression starts once the login has finished
+            if ( getPendingConnection().getVersion() < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                ch.setCompressionThreshold( compressionThreshold );
+            }
         }
     }
 
@@ -839,9 +844,23 @@ public final class UserConnection implements ProxiedPlayer
     @Override
     public void transfer(String host, int port)
     {
-        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Transfers are only supported in 1.20.5 and above" );
+        transfer( host, port, Collections.emptyMap() );
+    }
 
-        unsafe().sendPacket( new Transfer( host, port ) );
+    @Override
+    public void transfer(String host, int port, Map<String, String> properties)
+    {
+        Preconditions.checkNotNull( host, "host" );
+        Preconditions.checkNotNull( properties, "properties" );
+        for ( Map.Entry<String, String> property : properties.entrySet() )
+        {
+            Preconditions.checkNotNull( property.getKey(), "property key" );
+            Preconditions.checkNotNull( property.getValue(), "property value" );
+        }
+        Preconditions.checkState( getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_1_20_5, "Transfers are only supported in 1.20.5 and above" );
+        Preconditions.checkState( properties.isEmpty() || getPendingConnection().getVersion() >= ProtocolConstants.MINECRAFT_26_4, "Transfer properties are only supported in 26.4 and above" );
+
+        unsafe().sendPacket( new Transfer( host, port, new HashMap<>( properties ) ) );
     }
 
     @Override

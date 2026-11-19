@@ -143,7 +143,10 @@ public class Login extends DefinedPacket
                 dimension = readString( buf );
             }
             worldName = readString( buf );
-            seed = buf.readLong();
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                seed = buf.readLong();
+            }
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
             {
                 gameMode = readVarInt( buf );
@@ -156,7 +159,10 @@ public class Login extends DefinedPacket
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            debug = buf.readBoolean();
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                debug = buf.readBoolean();
+            }
             flat = buf.readBoolean();
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )
@@ -284,7 +290,10 @@ public class Login extends DefinedPacket
                 writeString( (String) dimension, buf );
             }
             writeString( worldName, buf );
-            buf.writeLong( seed );
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                buf.writeLong( seed );
+            }
             if ( protocolVersion >= ProtocolConstants.MINECRAFT_26_3 )
             {
                 writeVarInt( gameMode, buf );
@@ -297,7 +306,10 @@ public class Login extends DefinedPacket
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_16 )
         {
-            buf.writeBoolean( debug );
+            if ( protocolVersion < ProtocolConstants.MINECRAFT_26_4 )
+            {
+                buf.writeBoolean( debug );
+            }
             buf.writeBoolean( flat );
         }
         if ( protocolVersion >= ProtocolConstants.MINECRAFT_1_19 )

@@ -387,6 +387,26 @@ public interface ProxiedPlayer extends Connection, CommandSender
     void transfer(String host, int port);
 
     /**
+     * Requests this player to connect to a different server specified by host
+     * and port, with additional connection properties.
+     *
+     * This is a client-side transfer - host and port should not specify a
+     * BungeeCord backend server.
+     *
+     * The client appends the properties to the host it sends in its next
+     * handshake (<code>host?key=value&amp;...</code>), which makes them
+     * available to the server it is transferred to.
+     *
+     * @param host the host of the server to transfer to
+     * @param port the port of the server to transfer to
+     * @param properties the connection properties to send to the server
+     * @throws IllegalStateException if the players version is not at least
+     * 1.20.5, or if properties are specified and it is not at least 26.4
+     */
+    @ApiStatus.Experimental
+    void transfer(String host, int port, Map<String, String> properties);
+
+    /**
      * Gets the client brand of this player.
      *
      * If the player has not sent a brand packet yet, it will return null.
