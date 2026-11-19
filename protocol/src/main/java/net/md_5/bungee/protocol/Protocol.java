@@ -680,7 +680,6 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     ServerLinks.class,
                     ServerLinks::new,
-                    RegisterType.ENCODE,
                     map( ProtocolConstants.MINECRAFT_1_21, 0x7B ),
                     map( ProtocolConstants.MINECRAFT_1_21_2, 0x82 ),
                     map( ProtocolConstants.MINECRAFT_1_21_9, 0x87 ),
@@ -1017,7 +1016,6 @@ public enum Protocol
             TO_CLIENT.registerPacket(
                     ServerLinks.class,
                     ServerLinks::new,
-                    RegisterType.ENCODE,
                     map( ProtocolConstants.MINECRAFT_1_21, 0x10 ),
                     map( ProtocolConstants.MINECRAFT_26_3, 0x11 )
             );

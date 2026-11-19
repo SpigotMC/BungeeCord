@@ -31,6 +31,7 @@ import net.md_5.bungee.UserConnection;
 import net.md_5.bungee.Util;
 import net.md_5.bungee.api.Callback;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.ServerLink;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -41,6 +42,7 @@ import net.md_5.bungee.api.event.PluginMessageEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerDisconnectEvent;
 import net.md_5.bungee.api.event.ServerKickEvent;
+import net.md_5.bungee.api.event.ServerSendServerLinksEvent;
 import net.md_5.bungee.api.event.TabCompleteResponseEvent;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.TabExecutor;
@@ -74,6 +76,7 @@ import net.md_5.bungee.protocol.packet.ScoreboardObjective;
 import net.md_5.bungee.protocol.packet.ScoreboardScore;
 import net.md_5.bungee.protocol.packet.ScoreboardScoreReset;
 import net.md_5.bungee.protocol.packet.ServerData;
+import net.md_5.bungee.protocol.packet.ServerLinks;
 import net.md_5.bungee.protocol.packet.SetCompression;
 import net.md_5.bungee.protocol.packet.TabCompleteResponse;
 import net.md_5.bungee.tab.TabList;
@@ -866,6 +869,38 @@ public class DownstreamBridge extends PacketHandler
     public void handle(BundleDelimiter bundleDelimiter) throws Exception
     {
         con.toggleBundling();
+    }
+
+    @Override
+    public void handle(ServerLinks serverLinks) throws Exception
+    {
+        List<ServerLink> apiLinks = new ArrayList<>();
+        for ( ServerLinks.Link link : serverLinks.getLinks() )
+        {
+            if ( link.getType().isLeft() )
+            {
+                apiLinks.add( new ServerLink( ServerLink.LinkType.values()[ link.getType().getLeft() ], link.getUrl() ) );
+            } else
+            {
+                apiLinks.add( new ServerLink( link.getType().getRight(), link.getUrl() ) );
+            }
+        }
+        // a copy is needed because if event handlers add to the current list
+        // event.getServerLinks().equals will return true
+        // thus not update with the new server links
+        ServerSendServerLinksEvent event = bungee.getPluginManager()
+            .callEvent( new ServerSendServerLinksEvent( con, server.getInfo(), new ArrayList<>( apiLinks ) ) );
+        if ( event.isCancelled() )
+        {
+            // do not send links if cancelled
+            throw CancelSendSignal.INSTANCE;
+        }
+        if ( !event.getServerLinks().equals( apiLinks ) )
+        {
+            // the links have changed, resend a new packet
+            con.sendServerLinks( event.getServerLinks() );
+            throw CancelSendSignal.INSTANCE;
+        }
     }
 
     @Override
