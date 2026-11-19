@@ -21,6 +21,6 @@ Source code is currently available on [GitHub](https://www.spigotmc.org/go/bunge
 
 Binaries
 --------
-Precompiled binaries are available for end users on [Jenkins](https://www.spigotmc.org/go/bungeecord-dl).
+Precompiled binaries are available for end users to [download](https://www.spigotmc.org/go/bungeecord-dl).
 
 (c) 2012-2026 SpigotMC Pty. Ltd.
