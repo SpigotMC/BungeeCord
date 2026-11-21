@@ -1042,6 +1042,11 @@ public enum Protocol
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x00 )
             );
             TO_SERVER.registerPacket(
+                    CookieResponse.class,
+                    CookieResponse::new,
+                    map( ProtocolConstants.MINECRAFT_1_20_5, 0x01 )
+            );
+            TO_SERVER.registerPacket(
                     PluginMessage.class,
                     PluginMessage::new,
                     map( ProtocolConstants.MINECRAFT_1_20_2, 0x01 ),
