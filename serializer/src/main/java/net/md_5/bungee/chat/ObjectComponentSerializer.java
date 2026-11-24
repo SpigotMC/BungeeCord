@@ -130,9 +130,9 @@ public class ObjectComponentSerializer extends BaseComponentSerializer implement
 
     private static void validateName(String name)
     {
-        if ( name != null && ( name.length() > 16 || name.isEmpty() ) )
+        if ( name != null && name.length() > 16 )
         {
-            throw new JsonParseException( "Could not parse JSON: player name must be 16 characters or fewer and not empty" );
+            throw new JsonParseException( "Could not parse JSON: player name must be 16 characters or fewer" );
         }
     }
 }
