@@ -78,16 +78,19 @@ public class AsyncEvent<T> extends Event
         AtomicInteger intentCount = intents.get( plugin );
         Preconditions.checkState( intentCount != null && intentCount.get() > 0, "Plugin %s has not registered intents for event %s", plugin, this );
 
-        intentCount.decrementAndGet();
-        if ( fired.get() )
+        if ( intentCount.decrementAndGet() == 0 )
         {
-            if ( latch.decrementAndGet() == 0 )
+            intents.remove( plugin );
+            if ( fired.get() )
             {
-                done.done( (T) this, null );
+                if ( latch.decrementAndGet() == 0 )
+                {
+                    done.done( (T) this, null );
+                }
+            } else
+            {
+                latch.decrementAndGet();
             }
-        } else
-        {
-            latch.decrementAndGet();
         }
     }
 }
