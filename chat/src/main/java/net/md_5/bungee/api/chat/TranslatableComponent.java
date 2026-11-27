@@ -9,7 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.chat.TranslationRegistry;
+import org.jspecify.annotations.Nullable;
 
 @Getter
 @Setter
@@ -158,18 +160,18 @@ public final class TranslatableComponent extends BaseComponent
     @Override
     protected void toPlainText(StringVisitor builder)
     {
-        convert( builder, false );
+        convert( builder, null, null );
         super.toPlainText( builder );
     }
 
     @Override
-    protected void toLegacyText(StringVisitor builder)
+    protected ComponentStyle toLegacyText(StringVisitor builder, ChatColor baseColor, ComponentStyle currentLegacy)
     {
-        convert( builder, true );
-        super.toLegacyText( builder );
+        currentLegacy = convert( builder, baseColor, currentLegacy );
+        return super.toLegacyText( builder, baseColor, currentLegacy );
     }
 
-    private void convert(StringVisitor builder, boolean applyFormat)
+    private ComponentStyle convert(StringVisitor builder, @Nullable ChatColor baseColor, @Nullable ComponentStyle currentLegacy)
     {
         String trans = TranslationRegistry.INSTANCE.translate( translate );
 
@@ -186,11 +188,11 @@ public final class TranslatableComponent extends BaseComponent
             int pos = matcher.start();
             if ( pos != position )
             {
-                if ( applyFormat )
+                if ( baseColor != null )
                 {
-                    addFormat( builder );
+                    currentLegacy = addFormat( builder, baseColor, currentLegacy );
                 }
-                builder.append( trans.substring( position, pos ) );
+                builder.append( trans, position, pos );
             }
             position = matcher.end();
 
@@ -202,18 +204,18 @@ public final class TranslatableComponent extends BaseComponent
                     String withIndex = matcher.group( 1 );
 
                     BaseComponent withComponent = with.get( withIndex != null ? Integer.parseInt( withIndex ) - 1 : i++ );
-                    if ( applyFormat )
+                    if ( baseColor != null )
                     {
-                        withComponent.toLegacyText( builder );
+                        currentLegacy = withComponent.toLegacyText( builder, baseColor, currentLegacy );
                     } else
                     {
                         withComponent.toPlainText( builder );
                     }
                     break;
                 case '%':
-                    if ( applyFormat )
+                    if ( baseColor != null )
                     {
-                        addFormat( builder );
+                        currentLegacy = addFormat( builder, baseColor, currentLegacy );
                     }
                     builder.append( '%' );
                     break;
@@ -221,11 +223,15 @@ public final class TranslatableComponent extends BaseComponent
         }
         if ( trans.length() != position )
         {
-            if ( applyFormat )
+            if ( baseColor != null )
             {
-                addFormat( builder );
+                currentLegacy = addFormat( builder, baseColor, currentLegacy );
             }
-            builder.append( trans.substring( position, trans.length() ) );
+            builder.append( trans, position, trans.length() );
+        } else if ( baseColor != null )
+        {
+            currentLegacy = addFormat( builder, baseColor, currentLegacy );
         }
+        return currentLegacy;
     }
 }
