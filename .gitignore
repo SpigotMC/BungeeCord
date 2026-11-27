@@ -30,7 +30,8 @@ manifest.mf
 *.iml
 *.ipr
 *.iws
-.idea/
+/.idea/*
+!/.idea/codeStyles/
 
 # other files
 *.log*
